@@ -26,20 +26,36 @@ App.Settings = {
 			Slider: {
 			    min: 0,
 			    max: 10,
-			    step: 1,
 			    animate: true
 			},
 			Progressbar: {},
 			DatePicker: {
-				dateFormat: 'd M, yy'
+				firstDay: 0,
+				dateFormat: 'd M, yy',
+				showOn: "both",
+				numberOfMonths: 1,
+				dayNames: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+				dayNamesMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+				dayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+				monthNamesShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+				monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+				prevText: "Prev",
+				nextText: "Next",
+				closeText: "Done",
+				currentText: "Today",
+				hideIfNoPrevNext: true
 			},
 			Input: { //http://www.examplet.buss.hk/jquery/format.php
 				Numeric: {
-					precision: 4,
+					precision: 2,
 					autofix: true
 				},
 				Time: { //http://digitalbush.com/projects/masked-input-plugin/
 				    format: "99:99",
+				    placeholder: "_"
+				},
+				Masked: {
+					format: "(999) 999-99-99",
 				    placeholder: "_"
 				}
 			}

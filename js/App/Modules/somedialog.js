@@ -7,7 +7,7 @@ App.Modules.BusinessModule = (function($){
 
     	_methods = {
         	loadDialogForm: function() {
-    	    	App.Storage.Ajax.Url('/content/dialog.html').UseCache(true).Type('GET').DataType('html').Go(function(data){
+    	    	App.Storage.Ajax.Url('/AppJS/content/dialog.html').UseCache(true).Type('GET').DataType('html').Go(function(data){
     	    		App.Collection.Dialogs[_dialogElementID].SetTitle('Create New Item').SetContent(data).Modal().Show();
                     App.EM.trig('ui.element.injected', {type:'dialog', scope:'#'+_dialogElementID});
     	    	});

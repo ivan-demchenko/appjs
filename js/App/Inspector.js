@@ -10,7 +10,7 @@ App.Collection = {
 
 App.Inspector = (function($){
 
-    var _knownElements = ['dialog','tabs','datePicker','slider','progressbar','inputNumeric','inputTime','inputMoney','form']
+    var _knownElements = ['dialog','tabs','datePicker','slider','progressbar','inputNumeric','inputTime','inputMoney','inputMasked','form']
 
 	$(document).ready(function(){
 		_inspectScope();
@@ -36,7 +36,7 @@ App.Inspector = (function($){
                 break;
             }
             case 'datePicker': {
-                $(elem).datePicker("option", opt, val); 
+                $(elem).datePicker("option", opt, val);
                 break;
             }
             case 'tabs': {
@@ -145,6 +145,15 @@ App.Inspector = (function($){
             }
             case 'inputTime': {
                 var h = new App.Ui.Input.Time($(element), params); h.init();
+                if(App.Collection.Inputs[$(element).attr('id')]==undefined) {
+                    App.Collection.Inputs[$(element).attr('id')] = h;
+                } else {
+                    console.warn('Input with id `#'+$(element).attr('id')+'` is already exists.');
+                }
+                break;
+            }
+            case 'inputMasked': {
+            	var h = new App.Ui.Input.Masked($(element), params); h.init();
                 if(App.Collection.Inputs[$(element).attr('id')]==undefined) {
                     App.Collection.Inputs[$(element).attr('id')] = h;
                 } else {

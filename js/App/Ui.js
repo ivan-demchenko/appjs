@@ -80,13 +80,29 @@ App.Ui = (function($){
                     $(_element).slider(_params);
                     return this;
                 },
-                setMin: function(val){
-                    $(_element).slider("option", "min", val);
-                    return this;
+                Min: function(val){
+                    if(val==undefined) {
+                    	return $(_element).slider("option", "min");
+                    } else {
+                    	$(_element).slider("option", "min", val);
+                    	return this;
+                    }
                 },
-                setMax: function(val){
-                    $(_element).slider("option", "max", val);
-                    return this;
+                Max: function(val){
+                	if(val==undefined) {
+                    	return $(_element).slider("option", "max");
+                    } else {
+                    	$(_element).slider("option", "max", val);
+                    	return this;
+                    }
+                },
+                Step: function(val){
+                	if(val==undefined) {
+                    	return $(_element).slider("option", "step");
+                    } else {
+                    	$(_element).slider("option", "step", val);
+                    	return this;
+                    }
                 },
                 setOrientation: function(val){
                     if(val != 'vertical' || val != 'horizontal') {
@@ -99,17 +115,25 @@ App.Ui = (function($){
                     $(_element).slider("option", "range", val);
                     return this;
                 },
-				setValue: function(val) {
-					if($.isArray(val)) {
-						if(val.length==2) {
-							$(_element).slider("option", "values", val);
+				Value: function(val) {
+					if(val==undefined) {
+						if($(_element).slider('option', 'range')) {
+	                    	return $(_element).slider("option", "values");
 						} else {
-							console.log('Number of elements must be two!');
+	                  		return $(_element).slider("option", "value");
 						}
-					} else {
-						$(_element).slider("option", "value", val);
-					}
-					return this;
+                    } else {
+                    	if($.isArray(val)) {
+							if(val.length==2) {
+								$(_element).slider("option", "values", val);
+							} else {
+								console.log('Number of elements must be two!');
+							}
+						} else {
+							$(_element).slider("option", "value", val);
+						}
+						return this;
+                    }
 				}
             }
         },
@@ -127,6 +151,30 @@ App.Ui = (function($){
                 init: function() {
                     $(_element).datepicker(_params);
                     return this;
+                },
+                DateFormat: function(val) {
+                	if(val==undefined) {
+                		return $(_element).datepicker("option", "dateFormat");
+                	} else {
+                		$(_element).datepicker("option", "dateFormat", val);
+                		return this;
+                	}
+                },
+                MinDate: function(val) {
+                	if(val==undefined) {
+                		return $(_element).datepicker("option", "minDate");
+                	} else {
+                		$(_element).datepicker("option", "minDate", val);
+                		return this;
+                	}
+                },
+                MaxDate: function(val) {
+                	if(val==undefined) {
+                		return $(_element).datepicker("option", "maxDate");
+                	} else {
+                		$(_element).datepicker("option", "maxDate", val);
+                		return this;
+                	}
                 }
             }
         },
@@ -134,13 +182,13 @@ App.Ui = (function($){
             Numeric: function(element, params) {
                 var _element = element,
                     _params = {};
-            
+
                 if(params !== null || params !== undefined || params !== 'undefined') {
                     $.extend(true, _params, App.Settings.UI.Initial.Input.Numeric, params);
                 } else {
                     _params = App.Settings.UI.Initial.Input.Numeric;
                 }
-                
+
                 return {
                     init: function() {
                         $(_element).format(_params);
@@ -166,6 +214,21 @@ App.Ui = (function($){
                     }
                 }
             },
+            Masked: function(element, params) {
+            	var _element = element,
+                    _params = App.Settings.UI.Initial.Input.Masked;
+            
+                return {
+                    init: function() {
+                    	if( $(_element).attr('data-mask') !== undefined ) {
+                    		$(_element).mask($(_element).data('mask'), {placeholder: _params.placeholder});
+                    	} else {
+                    		$(_element).mask(_params.format, {placeholder: _params.placeholder});
+                    	}
+                        return this;
+                    }
+                }
+            }
         },
         Progressbar: function(element, params){
             var _element = element,
