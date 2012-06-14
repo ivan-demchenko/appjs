@@ -71,18 +71,21 @@ App.Storage = (function($){
 	        return this;
 	    },
 	    Go: function(silent, callback) {
-	        if(typeof callback == 'function') {
-                _successCallback = callback;
-	    	}
-	    	if(_useCache) {
-    	    	if(_cache[_ajaxParams.url] != undefined) {
-    	    	    if(typeof _successCallback == 'function') {
-                        _successCallback(_cache[_ajaxParams.url]);
-                        return true;
+	        if(arguments.length == 2) {
+	           _isSilentAjax = silent;
+	        } 
+    	        if(typeof callback == 'function') {
+                    _successCallback = callback;
+    	    	}
+    	    	if(_useCache) {
+        	    	if(_cache[_ajaxParams.url] != undefined) {
+        	    	    if(typeof _successCallback == 'function') {
+                            _successCallback(_cache[_ajaxParams.url]);
+                            return true;
+                        }
                     }
                 }
-            }
-	    	return $.ajax(_ajaxParams);
+    	    	return $.ajax(_ajaxParams);
 	    }
 	},
 	
