@@ -46,6 +46,9 @@ App.Settings = {
 				hideIfNoPrevNext: true
 			},
 			Input: { //http://www.examplet.buss.hk/jquery/format.php
+			    Autocomplete: {
+			        source: []
+                },
 				Numeric: {
 					precision: 2,
 					autofix: true

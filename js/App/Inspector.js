@@ -10,7 +10,7 @@ App.Collection = {
 
 App.Inspector = (function($){
 
-    var _knownElements = ['dialog','tabs','datePicker','slider','progressbar','inputNumeric','inputTime','inputMoney','inputMasked','form']
+    var _knownElements = ['dialog','tabs','autocomplete','datePicker','slider','progressbar','inputNumeric','inputTime','inputMoney','inputMasked','form']
 
 	$(document).ready(function(){
 		_inspectScope();
@@ -49,6 +49,10 @@ App.Inspector = (function($){
             }
             case 'progressbar': {
                 $(elem).progressbar("option", opt, val);
+                break;
+            }
+            case 'autocomplete': {
+                $(elem).autocomplete("option", opt, val);
                 break;
             }
         }
@@ -121,6 +125,15 @@ App.Inspector = (function($){
                     App.Collection.Tabs[$(element).attr('id')] = h;
                 } else {
                     console.warn('Tabs with id `#'+$(element).attr('id')+'` is already exists.');
+                }
+                break;
+            }
+            case 'autocomplete': {
+                var h = new App.Ui.Input.Autocomplete($(element), params||{}); h.init();
+                if(App.Collection.Inputs[$(element).attr('id')]==undefined) {
+                    App.Collection.Inputs[$(element).attr('id')] = h;
+                } else {
+                    console.warn('Input with id `#'+$(element).attr('id')+'` is already exists.');
                 }
                 break;
             }

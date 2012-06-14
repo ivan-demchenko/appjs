@@ -6,6 +6,7 @@ App.Storage = (function($){
     var _cache = new Array(),
     	_successCallback = null,
     	_useCache = false,
+    	_isSilentAjax = false,
     	_cleanUpCache = false,
 
     	_ajaxParams = {
@@ -69,7 +70,7 @@ App.Storage = (function($){
 	        _useCache = val;
 	        return this;
 	    },
-	    Go: function(callback) {
+	    Go: function(silent, callback) {
 	        if(typeof callback == 'function') {
                 _successCallback = callback;
 	    	}

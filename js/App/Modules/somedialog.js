@@ -7,9 +7,10 @@ App.Modules.BusinessModule = (function($){
 
     	_methods = {
         	loadDialogForm: function() {
-    	    	App.Storage.Ajax.Url('/AppJS/content/dialog.html').UseCache(true).Type('GET').DataType('html').Go(function(data){
+    	    	App.Storage.Ajax.Url('/content/dialog.html').UseCache(true).Type('GET').DataType('html').Go(function(data){
     	    		App.Collection.Dialogs[_dialogElementID].SetTitle('Create New Item').SetContent(data).Modal().Show();
                     App.EM.trig('ui.element.injected', {type:'dialog', scope:'#'+_dialogElementID});
+                    App.Collection.Inputs['city-name'].setDataSourse(_parseCityNames);
     	    	});
     	    },
     	    saveItem: function() {
@@ -24,7 +25,23 @@ App.Modules.BusinessModule = (function($){
     	App.EM.bind('BusinessModule.openDialog', _methods.loadDialogForm, this);
     	App.EM.bind('BusinessModule.save', _methods.saveItem, this);
     }
-    
+
+    function _parseCityNames(request, response) {
+        App.Storage.Ajax
+            .Url("http://ws.geonames.org/searchJSON")
+            .UseCache(false)
+            .DataType("jsonp")
+            .Data({featureClass: "P", style: "full", name_startsWith: request.term })
+            .Go(function(data) {
+                response( $.map( data.geonames, function( item ) {
+                    return {
+                        label: item.name + (item.adminName1 ? ", " + item.adminName1 : "") + ", " + item.countryName,
+                        value: item.name
+                    }
+                }));
+            });
+    }
+
     /**
      * Create HTML snippets and append them to Default App Scope 
      */

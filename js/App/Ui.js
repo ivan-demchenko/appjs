@@ -179,6 +179,35 @@ App.Ui = (function($){
             }
         },
         Input: {
+            Autocomplete: function(element, params){
+                var _element = element,
+                    _params = {};
+
+                if(params !== null || params !== undefined || params !== 'undefined') {
+                    $.extend(true, _params, App.Settings.UI.Initial.Input.Autocomplete, params);
+                } else {
+                    _params = App.Settings.UI.Initial.Input.Autocomplete;
+                }
+
+                return {
+                    init: function() {
+                        $(_element).autocomplete(_params);
+                        return this;
+                    },
+                    setDataSourse: function(val) {
+                        $(_element).autocomplete("option", "source", val);
+                        return this;
+                    },
+                    setDataRender: function(template) {
+                        $(_element).data("autocomplete")._renderItem = function(ul, item) {
+                            return $("<li></li>")
+                                    .data("item.autocomplete", item)
+                                    .append(template)
+                                    .appendTo(ul);
+                        }
+                    }
+                }
+            },
             Numeric: function(element, params) {
                 var _element = element,
                     _params = {};
