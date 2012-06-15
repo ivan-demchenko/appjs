@@ -7,7 +7,7 @@ App.Modules.BusinessModule = (function($){
 
     	_methods = {
         	loadDialogForm: function() {
-    	    	App.Storage.Ajax.Url('/content/dialog.html').UseCache(true).Type('GET').DataType('html').Go(function(data){
+    	    	App.Storage.Ajax.UseCache(true).ResponseType('html').Get('/content/dialog.html', function(data){
     	    		App.Collection.Dialogs[_dialogElementID].SetTitle('Create New Item').SetContent(data).Modal().Show();
                     App.EM.trig('ui.element.injected', {type:'dialog', scope:'#'+_dialogElementID});
                     App.Collection.Inputs['city-name'].setDataSourse(_parseCityNames);
@@ -28,11 +28,10 @@ App.Modules.BusinessModule = (function($){
 
     function _parseCityNames(request, response) {
         App.Storage.Ajax
-            .Url("http://ws.geonames.org/searchJSON")
             .UseCache(false)
-            .DataType("jsonp")
             .Data({featureClass: "P", style: "full", name_startsWith: request.term })
-            .Go(function(data) {
+            .ResponseType("jsonp")
+            .Get("http://ws.geonames.org/searchJSON", function(data) {
                 response( $.map( data.geonames, function( item ) {
                     return {
                         label: item.name + (item.adminName1 ? ", " + item.adminName1 : "") + ", " + item.countryName,

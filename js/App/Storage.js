@@ -2,7 +2,15 @@ App = App || {};
 
 App.Storage = (function($){
     'use strict';
-    
+
+    if(App.Settings.Debug.enabled) {
+        if (window.addEventListener) {
+            window.addEventListener("storage", _handleLocalStorage, false);
+        } else {
+            window.attachEvent("onstorage", _handleLocalStorage);
+        };
+    }
+
     var _cache = new Array(),
     	_successCallback = null,
     	_useCache = false,
@@ -15,13 +23,13 @@ App.Storage = (function($){
     		data: {},
     		dataType: 'json',
     		beforeSend: function() {
-    			App.EM.trig('ajax.beforeSend');
+    			App.EM.trig('Storage.Ajax.beforeSend');
     		},
     		error: function(jqXHR, textStatus, errorThrown) {
-    			App.EM.trig('ajax.error: '+this.url, [jqXHR, textStatus, errorThrown]);
+    			App.EM.trig('Storage.Ajax.error: '+this.url, [jqXHR, textStatus, errorThrown]);
     		},
     		success: function(response) {
-    		    App.EM.trig('ajax.success');
+    		    App.EM.trig('Storage.Ajax.success');
     			var _data = null;
                 try {
                     _data = $.parseJSON(response);
@@ -40,25 +48,39 @@ App.Storage = (function($){
     			}
     		}
 	    },
+	    
+	    _handleLocalStorage = function(e) {
+	        if (!e) {
+	            e = window.event;
+	        }
+	        console.log('LocalStorage event: key: '+e.key+' old value: '+e.oldValue+', new value: '+e.newValue+', url: '+e.url+', ');
+	    },
+	    
+	    _produceAjaxRequest = function(callback) {
+	        if(typeof callback == 'function') {
+                _successCallback = callback;
+            }
+            if(_useCache) {
+                if(_cache[_ajaxParams.url] != undefined) {
+                    if(typeof _successCallback == 'function') {
+                        _successCallback(_cache[_ajaxParams.url]);
+                        return true;
+                    }
+                }
+            }
+            return $.ajax(_ajaxParams);
+	    },
     	
 	/*
 	 * Ajax Processor
 	 * ---------------------------------
 	 */
 	ajaxProcessor = {
-		Url: function(url) {
-	    	_ajaxParams.url = url;
-	    	return this;
-		},
-		Type: function(type) {
-			_ajaxParams.type = type
-			return this;
-		},
 		Data: function(data) {
 	    	_ajaxParams.data = data;
 	    	return this;
 	    },
-	    DataType: function(dataType) {
+	    ResponseType: function(dataType) {
 	    	_ajaxParams.dataType = dataType;
 	    	return this;
 	    },
@@ -70,36 +92,76 @@ App.Storage = (function($){
 	        _useCache = val;
 	        return this;
 	    },
-	    Go: function(silent, callback) {
+	    /**
+	     * arguments[0] = url,
+	     * arguments[1] = callback/silent
+	     * arguments[2] = callback
+	     */
+	    Post: function() {
+	        _ajaxParams.url = arguments[0];
+	        _ajaxParams.type = 'POST';
+	        // Only callback
 	        if(arguments.length == 2) {
-	           _isSilentAjax = silent;
-	        } 
-    	        if(typeof callback == 'function') {
-                    _successCallback = callback;
-    	    	}
-    	    	if(_useCache) {
-        	    	if(_cache[_ajaxParams.url] != undefined) {
-        	    	    if(typeof _successCallback == 'function') {
-                            _successCallback(_cache[_ajaxParams.url]);
-                            return true;
-                        }
-                    }
-                }
-    	    	return $.ajax(_ajaxParams);
-	    }
+	           _isSilentAjax = false;
+               _produceAjaxRequest(arguments[1]);
+            }
+            // Callback and silent mode switcher
+	        if(arguments.length == 3) {
+	           _isSilentAjax = arguments[1];
+	           _produceAjaxRequest(arguments[2]);
+	        }
+	        return this;
+	    },
+	    Get: function() {
+            _ajaxParams.url = arguments[0];
+            _ajaxParams.type = 'GET';
+            // Only callback
+            if(arguments.length == 2) {
+               _isSilentAjax = false;
+               _produceAjaxRequest(arguments[1]);
+            }
+            // Callback and silent mode switcher
+            if(arguments.length == 3) {
+               _isSilentAjax = arguments[1];
+               _produceAjaxRequest(arguments[2]);
+            }
+            return this;
+        },
+        GetCache: function() {
+            return _cache;
+        },
+        DropCache: function() {
+            _cache = new Array();
+            return this;
+        }
 	},
 	
 	/*
 	 * LocalStorage Processor
 	 * ---------------------------------
-	 */	
+	 */
 	localProcessor = {
-		setValue: function() {
-			
-		},
-		getValue: function() {
-			
-		}
+		Set: function(key, val) {
+            if(typeof localStorage == 'undefined') {
+                throw 'Browser do not support `localStorage`';
+            }
+            localStorage.setItem(key, val);
+        },
+        Get: function(key) {
+            if(typeof localStorage == 'undefined') {
+                throw 'Browser do not support `localStorage`';
+            }
+            return localStorage.getItem(key);
+        },
+        DropVal: function(key) {
+            if(typeof localStorage == 'undefined') {
+                throw 'Browser do not support `localStorage`';
+            }
+            localStorage.removeItem(key);
+        },
+        Clear: function() {
+            localStorage.clear();
+        }
 	},
 	
 	/*
@@ -107,11 +169,26 @@ App.Storage = (function($){
      * ---------------------------------
      */ 
     sessionStorageProcessor = {
-        setValue: function() {
-            
+        Set: function(key, val) {
+            if(typeof sessionStorage == 'undefined') {
+                throw 'Browser do not support `sessionStorage`';
+            }
+            sessionStorage.setItem(key, val);
         },
-        getValue: function() {
-            
+        Get: function(key) {
+            if(typeof sessionStorage == 'undefined') {
+                throw 'Browser do not support `sessionStorage`';
+            }
+            return localStorage.getItem(key);
+        },
+        DropVal: function(key) {
+            if(typeof sessionStorage == 'undefined') {
+                throw 'Browser do not support `sessionStorage`';
+            }
+            sessionStorage.removeItem(key);
+        },
+        Clear: function() {
+            sessionStorage.clear();
         }
     }
 	
@@ -121,11 +198,8 @@ App.Storage = (function($){
      */
     return {
     	Ajax: ajaxProcessor,
-    	LS: localProcessor,
-    	SS: sessionStorageProcessor,
-    	getCache: function() {
-    	    return _cache;
-    	}
+    	Local: localProcessor,
+    	Session: sessionStorageProcessor
     }
 
 }(jQuery))
