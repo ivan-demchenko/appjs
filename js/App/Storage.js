@@ -48,14 +48,14 @@ App.Storage = (function($){
     			}
     		}
 	    },
-	    
+
 	    _handleLocalStorage = function(e) {
 	        if (!e) {
 	            e = window.event;
 	        }
 	        console.log('LocalStorage event: key: '+e.key+' old value: '+e.oldValue+', new value: '+e.newValue+', url: '+e.url+', ');
 	    },
-	    
+
 	    _produceAjaxRequest = function(callback) {
 	        if(typeof callback == 'function') {
                 _successCallback = callback;
@@ -70,7 +70,7 @@ App.Storage = (function($){
             }
             return $.ajax(_ajaxParams);
 	    },
-    	
+
 	/*
 	 * Ajax Processor
 	 * ---------------------------------
@@ -142,25 +142,39 @@ App.Storage = (function($){
 	 */
 	localProcessor = {
 		Set: function(key, val) {
-            if(typeof localStorage == 'undefined') {
+            if(localStorage) {
+                localStorage.setItem(key, val);
+                return this;
+            } else {
                 throw 'Browser do not support `localStorage`';
             }
-            localStorage.setItem(key, val);
         },
         Get: function(key) {
-            if(typeof localStorage == 'undefined') {
+            if(localStorage) {
+                if(localStorage.length) {
+                    return localStorage.getItem(key);
+                } else {
+                    throw 'No data for this domain';
+                }
+            } else {
                 throw 'Browser do not support `localStorage`';
             }
-            return localStorage.getItem(key);
         },
         DropVal: function(key) {
-            if(typeof localStorage == 'undefined') {
+            if(localStorage) {
+                localStorage.removeItem(key);
+                return this;
+            } else {
                 throw 'Browser do not support `localStorage`';
             }
-            localStorage.removeItem(key);
         },
         Clear: function() {
-            localStorage.clear();
+            if(localStorage) {
+                localStorage.clear();
+                return this;
+            } else {
+                throw 'Browser do not support `localStorage`';
+            }
         }
 	},
 	
@@ -170,25 +184,39 @@ App.Storage = (function($){
      */ 
     sessionStorageProcessor = {
         Set: function(key, val) {
-            if(typeof sessionStorage == 'undefined') {
+            if(sessionStorage) {
+                sessionStorage.setItem(key, val);
+                return this;
+            } else {
                 throw 'Browser do not support `sessionStorage`';
             }
-            sessionStorage.setItem(key, val);
         },
         Get: function(key) {
-            if(typeof sessionStorage == 'undefined') {
+            if(sessionStorage) {
+                if(sessionStorage.length) {
+                    return localStorage.getItem(key);
+                } else {
+                    throw 'Your `sessionStorage` is empty';
+                }
+            } else {
                 throw 'Browser do not support `sessionStorage`';
             }
-            return localStorage.getItem(key);
         },
         DropVal: function(key) {
-            if(typeof sessionStorage == 'undefined') {
+            if(sessionStorage) {
+                sessionStorage.removeItem(key);
+                return this;
+            } else {
                 throw 'Browser do not support `sessionStorage`';
             }
-            sessionStorage.removeItem(key);
         },
         Clear: function() {
-            sessionStorage.clear();
+            if(sessionStorage) {
+                sessionStorage.clear();
+                return this;
+            } else {
+                throw 'Browser do not support `sessionStorage`';
+            }
         }
     }
 	
