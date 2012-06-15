@@ -1,14 +1,37 @@
-App = {
-	Modules: {}
-};
+App = {};
 
-$(document).ready(function(){
-    $.each(App.Modules, function(i, module){
-        if(module.hasOwnProperty('autoInit')) {
-           module.autoInit();
-        }
-    });
-});
+App.Modules = (function(loader, $) {
+    loader.path('/js/App/Modules/');
+    var _collection = new Array,
+
+        _getModule = function(moduleName, params, callback) {
+            if(!_collection[moduleName]) {
+                loader(moduleName, moduleName);
+                loader.ready(moduleName, function(){
+                    _collection[moduleName].init.apply(params);
+                    if(typeof callback=='function') {
+                        callback();
+                    }
+                });
+            }
+            return _collection[moduleName];
+        },
+        
+        _registerModule = function(moduleName, obj) {
+            console.info('Registered module `'+moduleName+'`');
+            _collection[moduleName] = obj;
+        },
+        
+        _getRunningModules = function(){
+            return _collection;
+        };
+        
+    return {
+        Register: _registerModule,
+        List: _getRunningModules,
+        Get: _getModule
+    }
+}($script, jQuery));
 
 if (!window.console) {
   window.console = (function(console){

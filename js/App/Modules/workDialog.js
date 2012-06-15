@@ -1,4 +1,4 @@
-App.Modules.BusinessModule = (function($){
+(function($){
     'use strict';
 
     var 
@@ -22,8 +22,8 @@ App.Modules.BusinessModule = (function($){
      * Initialize evets listeners for this module
      */
     function _initEventsListeners() {
-    	App.EM.bind('BusinessModule.openDialog', _methods.loadDialogForm, this);
-    	App.EM.bind('BusinessModule.save', _methods.saveItem, this);
+    	App.EM.bind('workDialog.openDialog', _methods.loadDialogForm, this);
+    	App.EM.bind('workDialog.save', _methods.saveItem, this);
     }
 
     function _parseCityNames(request, response) {
@@ -66,7 +66,9 @@ App.Modules.BusinessModule = (function($){
     /**
      * Bootstrap of module 
      */
-    function _initialize() {
+    function _initialize(int1, int2) {
+        console.log('DATA1: '+int1);
+        console.log('DATA2: '+int2);
     	_initMarkup();
     	_initEventsListeners();
     }
@@ -74,8 +76,10 @@ App.Modules.BusinessModule = (function($){
 	/**
 	 * Public interface of a Module 
 	 */
-    return {
+    var workDialog = {
         init: _initialize
     }
+    
+    App.Modules.Register('workDialog', workDialog);
     
 })(jQuery);

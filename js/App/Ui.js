@@ -137,6 +137,26 @@ App.Ui = (function($){
 				}
             }
         },
+        ButtonSet: function(element, params) {
+            var _element = element;
+            
+            return {
+                init: function() {
+                    $(_element).buttonset();
+                    return this;
+                }
+            }
+        },
+        Button: function(element, params) {
+            var _element = element;
+            
+            return {
+                init: function() {
+                    $(_element).button();
+                    return this;
+                }
+            }
+        },
         DatePicker: function(element, params) {
             var _element = element,
                 _params = {};
