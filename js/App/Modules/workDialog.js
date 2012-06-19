@@ -7,7 +7,7 @@
 
     	_methods = {
         	loadDialogForm: function() {
-    	    	App.Storage.Ajax.UseCache(true).ResponseType('html').Get('/content/temp.php', function(data){
+    	    	App.Storage.Ajax.UseCache(true).ResponseType('html').Get('/content/dialog.html', function(data){
     	    		App.Collection.Dialogs[_dialogElementID].SetTitle('Create New Item').SetContent(data).Modal().Show();
                     App.EM.trig('ui.element.injected', {type:'dialog', scope:'#'+_dialogElementID});
                     App.Collection.Inputs['city-name'].setDataSourse(_parseCityNames);
