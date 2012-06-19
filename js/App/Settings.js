@@ -2,11 +2,11 @@ App = App || {};
 App.Settings = {
     baseURL: '/',
 	dateFormat: 'd M, yy',
-	errorReportingUrl: '/error.php',
-	ajaxErrorMessageKey: 'rawMessage',
 	Debug: {
 	    enabled: true,
-	    errorUrl: '',
+	    errorReportingUrl: '/error.php',
+        ajaxErrorKey: 'error',
+        ajaxErrorMessageKey: 'rawMessage',
 	},
 	UI: {
 		Initial: {
@@ -62,20 +62,36 @@ App.Settings = {
 				    placeholder: "_"
 				}
 			}
-		},
-		ajaxResponders: {
-		    startLoading: function() {
-		        $('body').append('<div id="loader">Loading...</div>');
-		    },
-		    errorOccured: function(jqXHR, textStatus, errorThrown) {
-		        console.log('Ajax error: ');
-                console.log(jqXHR);
-                console.log(textStatus);
-                console.log(errorThrown);
-		    },
-		    success: function() {
-		        $('body #loader').remove();
-		    }
 		}
-	}
+	},
+    ajaxResponders: {
+        startLoading: function() {
+            $('body').append('<div id="loader">Loading...</div>');
+        },
+        errorOccured: function(jqXHR, textStatus, errorThrown) {
+            console.warn('Ajax error: ');
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+        },
+        errorRequestProcessor: function(response) {
+            var data = null;
+            try {
+                data = $.parseJSON(response);
+                if(App.Settings.Debug.enabled) {
+                    var errKey = App.Settings.Debug.ajaxErrorKey,
+                        errMsg = App.Settings.Debug.ajaxErrorMessageKey;
+                    if(data.hasOwnProperty(errKey) && data[errKey]) {
+                        App.Collection.Dialogs['error-dialog'].setContent(data[errMsg]).Modal().Show();
+                    }
+                }
+            } catch(e) {
+                data = response;
+            }
+            return data;
+        },
+        success: function() {
+            $('body #loader').remove();
+        }
+    }
 }

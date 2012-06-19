@@ -1,15 +1,20 @@
-App.Modules.CallDialogButton = (function($){
+(function($){
 	
-    function _bindEventListeners() {
-        $('#create-item').click(function(){
-        	App.EM.trig('BusinessModule.openDialog');
-        });
-    }
-
-    return {
-        autoInit: function() {
-            _bindEventListeners();
+	var
+        _bindEventListeners = function() {
+            $('#create-item').click(function(){
+                App.Modules.Get('workDialog', [2, 3], function(){
+                    App.EM.trig('workDialog.openDialog');
+                });
+            });
+        },
+    
+        dialogButton = {
+            init: function() {
+                _bindEventListeners();
+            }
         }
-    }
+    
+    App.Modules.Register('dialogButton', dialogButton);
 
 }(jQuery));
