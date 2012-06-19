@@ -78,28 +78,29 @@ App.Settings = {
                 console.log(errorThrown);
             }
         },
-        errorRequestProcessor: function(response) {
-            var data = null;
-            try {
-                data = $.parseJSON(response);
-                if(App.Settings.Debug.enabled) {
-                    var errKey = App.Settings.Debug.ajaxErrorKey,
-                        errMsg = App.Settings.Debug.ajaxErrorMessageKey;
-                    if(data.hasOwnProperty(errKey) && data[errKey]) {
-                        App.Collection.Dialogs['error-dialog'].SetContent(data[errMsg]).Modal().Show();
-                        return false;
+        errorRequestProcessor: function(response, dataType) {
+            if(App.Settings.Debug.enabled) {
+                switch (dataType) {
+                    case 'jsonp':
+                    case 'json': {
+                        var errKey = App.Settings.Debug.ajaxErrorKey,
+                            errMsg = App.Settings.Debug.ajaxErrorMessageKey;
+                        if(response.hasOwnProperty(errKey) && response[errKey]) {
+                            App.Collection.Dialogs['error-dialog'].SetContent(response[errMsg]).Modal().Show();
+                            return false;
+                        }
+                        break;
                     }
-                }
-            } catch(e) {
-                data = response;
-                if(App.Settings.Debug.enabled) {
-                    if(response.indexOf('xdebug') > -1) {
-                        App.Collection.Dialogs['error-dialog'].SetContent(data).Modal().Show();
-                        return false;
+                    case 'html': {
+                        if(response.indexOf('xdebug-error') > -1) {
+                            App.Collection.Dialogs['error-dialog'].SetContent(response).Modal().Show();
+                            return false;
+                        }
+                        break;
                     }
                 }
             }
-            return data;
+            return true;
         },
         success: function() {
             $('body #loader').remove();

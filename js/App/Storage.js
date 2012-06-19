@@ -38,12 +38,11 @@ App.Storage = (function($){
     		},
     		success: function(response) {
     		    App.Settings.ajaxResponders.success();
-    		    if(!_cache[_ajaxParams.url]) {
-    		        var _data = App.Settings.ajaxResponders.errorRequestProcessor(response);
-        			if(_data!==false) {
-                        _cache[_ajaxParams.url] = _data;
+    		    if(_cache[_ajaxParams.url]!==false) {
+        			if(App.Settings.ajaxResponders.errorRequestProcessor(response, this.dataType)) {
+                        _cache[_ajaxParams.url] = response;
             			if(typeof _successCallback == 'function') {
-                            _successCallback(_data);
+                            _successCallback(response);
                         }
                     }
                 }
