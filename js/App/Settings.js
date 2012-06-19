@@ -68,11 +68,15 @@ App.Settings = {
         startLoading: function() {
             $('body').append('<div id="loader">Loading...</div>');
         },
-        errorOccured: function(jqXHR, textStatus, errorThrown) {
-            console.warn('Ajax error: ');
-            console.log(jqXHR);
-            console.log(textStatus);
-            console.log(errorThrown);
+        errorOccured: function(jqXHR, textStatus, errorThrown, URL) {
+            if(App.Settings.Debug.enabled) {
+                var msg = 'Ajax error for URL: '+URL+', see logs (F12) for more details...';
+                App.Collection.Dialogs['error-dialog'].SetContent(msg).Modal().Show();
+                console.warn('Ajax error: ');
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+            }
         },
         errorRequestProcessor: function(response) {
             var data = null;
@@ -82,11 +86,18 @@ App.Settings = {
                     var errKey = App.Settings.Debug.ajaxErrorKey,
                         errMsg = App.Settings.Debug.ajaxErrorMessageKey;
                     if(data.hasOwnProperty(errKey) && data[errKey]) {
-                        App.Collection.Dialogs['error-dialog'].setContent(data[errMsg]).Modal().Show();
+                        App.Collection.Dialogs['error-dialog'].SetContent(data[errMsg]).Modal().Show();
+                        return false;
                     }
                 }
             } catch(e) {
                 data = response;
+                if(App.Settings.Debug.enabled) {
+                    if(response.indexOf('xdebug') > -1) {
+                        App.Collection.Dialogs['error-dialog'].SetContent(data).Modal().Show();
+                        return false;
+                    }
+                }
             }
             return data;
         },

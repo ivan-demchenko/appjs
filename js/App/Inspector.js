@@ -16,14 +16,6 @@ App.Inspector = (function($){
 		_inspectScope();
 	});
 
-	/*
-	 * Ajax Responders
-	 * ----------------------------------------------------------
-	 */
-	App.EM.bind("ajax.beforeSend", App.Settings.ajaxResponders.startLoading, this);
-    App.EM.bind("ajax.error", App.Settings.ajaxResponders.errorOccured, this);
-    App.EM.bind("ajax.success", App.Settings.ajaxResponders.success, this);
-
     /*
      * DOM Responders
      * ----------------------------------------------------------

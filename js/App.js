@@ -5,16 +5,19 @@ App.Modules = (function(loader, $) {
     var _collection = new Array,
 
         _getModule = function(moduleName, params, callback) {
-            if(!_collection[moduleName]) {
-                loader(moduleName, moduleName);
-                loader.ready(moduleName, function(){
-                    _collection[moduleName].init.apply(params);
-                    if(typeof callback=='function') {
-                        callback();
-                    }
-                });
+            if(_collection[moduleName]) {
+                if(typeof callback=='function') {
+                    callback();
+                }
+                return _collection[moduleName];
             }
-            return _collection[moduleName];
+            loader(moduleName, moduleName);
+            loader.ready(moduleName, function(){
+                _collection[moduleName].init.apply(params);
+                if(typeof callback=='function') {
+                    callback();
+                }
+            });
         },
         
         _registerModule = function(moduleName, obj) {
