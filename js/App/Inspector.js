@@ -94,7 +94,7 @@ App.Inspector = (function($){
                 break;
             }
             case 'form': {
-                var h = new App.Ui.FormHandler($(element), params||{}); h.initForm();
+                var h = new App.Ui.FormHandler($(element), params||{}); h.Init();
                 if(App.Collection.Forms[$(element).attr('id')]==undefined) {
                     App.Collection.Forms[$(element).attr('id')] = h;
                 } else {

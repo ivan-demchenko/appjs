@@ -1,59 +1,81 @@
-App = {};
+var App = (function ($) {
+	'use strict';
+    var
+        appParts = ['Settings', 'EventManager', 'Ui', 'Inspector', 'Storage'],
+        appIsBuilt = false,
+        appPartsLocation = '/js/App/',
+        modulesLocation = '/js/App/Modules/',
+        modulesCollection = {},
+
+        LoaderFactory = function (collection) {
+            return function(name) {
+                if(collection[name])
+                    return collection[name];
+                
+                var dfd = $.Deferred(),
+                    modulePath = modulesLocation + moduleName + '/' + moduleName + '.js',
+                    moduleParams = modulesLocation + moduleName + '/params.json';
+                
+                $.when($.getScript(modulePath), $.getJSON(moduleParams))
+                .done(function (aScript, aJSON) {
+                    modulesCollection[moduleName].module.init.apply(initParams);
+                    console.log(aScript);
+                    console.log(aJSON);
+                    dfd.resolve();
+                });
+                return dfd.promise();
+            };
+        },
+        
+        ModuleManager = {
+            Modules: modulesCollection,
+            Get: LoaderFactory(modulesCollection),
+            Register: function (moduleName, obj) {
+                if(App.Settings.Debug.enabled)
+                    console.info('Registered module `' + moduleName + '`');
+                modulesCollection[moduleName] = {module: obj, params: {}};
+            },
+            LoadModulesByScheme: function () {
+                var list = App.Settings.ModulesScheme(),
+                    loc = window.location.pathname;
+
+                $.each(list[loc], function (i, val) {
+                    LoaderFactory (val);
+                });
+            }
+        },
+
+        loadAppPart = function (i)
+        {
+            $.getScript(appPartsLocation + appParts[i] + '.js')
+            .done(function () {
+                if(i < appParts.length-1)
+                    loadAppPart(++i);
+                else {
+                    App.Modules.LoadModulesByScheme();
+                    appIsBuilt = true;
+                }
+            })
+            .fail(function () {
+                console.warn('Error: ' + appPartsLocation + appParts[i] + '.js');
+            });
+        }
+    
+    ;return {
+        Build: function (i) {
+            if(appIsBuilt === false)
+                loadAppPart (i);
+            else return false;
+        },
+        Modules: ModuleManager
+    };
+}(jQuery));
 
 /**
- * Autoload Modules
+ * Build App with Internal Modules
  */
-var _appParts = ['Settings', 'EventManager', 'Ui', 'Inspector', 'Storage'];
-
-$script.path('/js/App/');
-$script(['Settings', 'EventManager', 'Ui', 'Inspector', 'Storage']);
-$script.ready('Settings', function(){
-    $script.ready('EventManager', function(){
-        $script.ready('Ui', function(){
-            $script.ready('Inspector', function(){
-                $script.ready('Storage', function(){
-                    $script.path('/js/App/Modules/');
-                });
-            });
-        });
-    });
-});
-
-App.Modules = (function(loader, $) {
-
-    var _collection = new Array,
-
-        _getModule = function(moduleName, params, callback) {
-            if(_collection[moduleName]) {
-                if(typeof callback=='function') {
-                    callback();
-                }
-                return _collection[moduleName];
-            }
-            loader(moduleName, moduleName);
-            loader.ready(moduleName, function(){
-                _collection[moduleName].init.apply(params);
-                if(typeof callback=='function') {
-                    callback();
-                }
-            });
-        },
-
-        _registerModule = function(moduleName, obj) {
-            console.info('Registered module `'+moduleName+'`');
-            _collection[moduleName] = obj;
-        },
-
-        _getRunningModules = function(){
-            return _collection;
-        };
-
-    return {
-        Register: _registerModule,
-        List: _getRunningModules,
-        Get: _getModule
-    }
-}($script, jQuery));
+var i = 0;
+App.Build(i);
 
 /**
  * Help functions

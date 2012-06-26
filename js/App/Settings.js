@@ -8,6 +8,11 @@ App.Settings = {
         ajaxErrorKey: 'error',
         ajaxErrorMessageKey: 'rawMessage',
 	},
+	ModulesScheme: function () {
+	    var scheme = []
+	    scheme['/'] = ['dialogButton'];
+	    return scheme;
+	},
 	UI: {
 		Initial: {
 			Dialog: {
