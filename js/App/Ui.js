@@ -306,7 +306,9 @@ App.Ui = (function($){
          */
         FormHandler: function(element, params) {
             var _form = $(element),
-                _customValidation = null,
+                _customValidation,
+                _validator,
+                _formSender = null, // Object with rules
                 _elementsArray = _form.find('input, select, select, textarea');
             /**
              * Init function
@@ -314,86 +316,38 @@ App.Ui = (function($){
              * Handles submiting
              */
             return {
-                initForm: function() {
-                    // Attach submit hander to form only if we don't use it to send files
-                    if($(_form).attr('enctype') == undefined && $(_form).attr('enctype')!='multipart/form-data') {
-                        _form.submit(function(e){
-                            e.preventDefault();
-                            if(App.Collection.Forms[_form.attr('id')].validate()) {
-                                if(_form.attr('action') == undefined) {
-                                    alert('Action is not defined');
-                                    return false;
-                                }
-                                var _actionURL = _form.attr('action');
-                                var _data = _form.serialize();
-                                var _method = _form.attr('method') != 'undefined' ? _form.attr('method') : 'post';
-                                App.Storage.byAjax.Data(_data).Type(_method).Url(_actionURL).Go();
-                            }
-                        });
-                    }
-
-                    // Bind handler on elements to remove Error class 
-                    _elementsArray.each(function(i) {
-                        _elementsArray.live('focusin', function(){
-                            if( $(this).hasClass('error') ) {
-                                $(this).removeClass('error');
-                            }
-                        });
-                    });
-
+                Init: function()
+                {
+                	_form.validate({
+                		submitHandler: function(form){
+                			_form.ajaxSubmit();
+                		}
+                	});
                     return this;
                 },
                 /*
                  * Use this function to attach some event handlers to element
                  */
-                processElements: function(afterBindElements) {
+                ProcessElements: function(afterBindElements)
+                {
                     if(afterBindElements != null && (typeof afterBindElements == 'function')) {
                         afterBindElements();
                     }
                 },
                 /*
-                 * Force form submition
+                 * Run form submition
                  */
-                send: function(success){
+                Send: function(success)
+                {
                     _form.submit();
                     return this;
                 },
                 /*
                  * User defined validation function
                  */
-                setValidationFunction: function(func) {
+                SetValidationRules: function(func)
+                {
                     _customValidation = func;
-                },
-                /**
-                 * Validate form on emptiness and requirement
-                 */
-                validate: function() {
-                    if(_form == null) {
-                        alert('Form element is not initialized.');
-                        return false;
-                    }
-                    var error = false;
-                    if(_customValidation !== null) {
-                        error = _customValidation();
-                    }
-                    _elementsArray.each(function(i){
-                        // if enabled and empty
-                        if( $(this).attr('type') != 'hidden' &&
-                            $(this).attr('disabled') == undefined &&
-                            $(this).attr('required') != undefined &&
-                            ($(this).val() == '' || parseFloat($(this).val()) == 0)
-                        ){
-                            // Then error. No need to validate any more
-                            error = true;
-                            $(this).addClass('error');
-                            return false;
-                        } else {
-                            // Else OK.
-                            error = false;
-                            $(this).removeClass('error');
-                        }
-                    });
-                    return !error;
                 }
             }
         }
