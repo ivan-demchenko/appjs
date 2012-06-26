@@ -316,20 +316,19 @@ App.Ui = (function($){
              * Handles submiting
              */
             return {
-                Init: function()
-                {
-                	_form.validate({
-                		submitHandler: function(form){
-                			_form.ajaxSubmit();
-                		}
-                	});
+                Init: function() {
+                    // Attach submit hander to form only if we don't use it to send files
+                    _validator = _form.validate({
+                        submitHandler: function(form) {
+                            _form.ajaxSubmit();
+                        }
+                    });
                     return this;
                 },
                 /*
                  * Use this function to attach some event handlers to element
                  */
-                ProcessElements: function(afterBindElements)
-                {
+                BindElements: function(afterBindElements) {
                     if(afterBindElements != null && (typeof afterBindElements == 'function')) {
                         afterBindElements();
                     }
@@ -345,9 +344,18 @@ App.Ui = (function($){
                 /*
                  * User defined validation function
                  */
-                SetValidationRules: function(func)
-                {
-                    _customValidation = func;
+                ValidationRules: function(rules) {
+                    if(rules)
+                        _validator.rules(rules);
+                    else
+                        _validator.rules();
+                },
+                
+                /**
+                 * Validate form on emptiness and requirement
+                 */
+                Validator: function() {
+                    return _validator;
                 }
             }
         }

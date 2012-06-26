@@ -10,6 +10,12 @@ App.Storage = (function($){
             window.attachEvent("onstorage", _handleLocalStorage);
         };
     }
+    
+    if($('#error-dialog').length==0) {
+        var ed = document.createElement('div');
+        $(ed).addClass('dialog').attr('id', 'error-dialog').attr('title', 'Server Error').css({width: '600px', height: '470px', display: 'none'}).appendTo('body');
+        App.EM.trig('ui.element.new', ['error-dialog']);
+    }
 
     var _cache = new Array(),
     	_successCallback = null,
@@ -23,29 +29,23 @@ App.Storage = (function($){
     		data: {},
     		dataType: 'json',
     		beforeSend: function() {
-    			App.EM.trig('Storage.Ajax.beforeSend');
+    			App.Settings.ajaxResponders.startLoading();
     		},
     		error: function(jqXHR, textStatus, errorThrown) {
-    			App.EM.trig('Storage.Ajax.error: '+this.url, [jqXHR, textStatus, errorThrown]);
+    		    App.Settings.ajaxResponders.errorOccured(jqXHR, textStatus, errorThrown, this.url);
+    		    _cache[_ajaxParams.url] = false;
+    		    return false;
     		},
     		success: function(response) {
-    		    App.EM.trig('Storage.Ajax.success');
-    			var _data = null;
-                try {
-                    _data = $.parseJSON(response);
-                    if(typeof _data == 'object') {
-                        if(_data.error) {
-                            alert(_data[App.Settings.ajaxErrorMessageKey]);
-                            return false;
+    		    App.Settings.ajaxResponders.success();
+    		    if(_cache[_ajaxParams.url]!==false) {
+        			if(App.Settings.ajaxResponders.errorRequestProcessor(response, this.dataType)) {
+                        _cache[_ajaxParams.url] = response;
+            			if(typeof _successCallback == 'function') {
+                            _successCallback(response);
                         }
                     }
-                } catch(e) {
-                    _data = response;
                 }
-                _cache[_ajaxParams.url] = _data;
-    			if(typeof _successCallback == 'function') {
-    				_successCallback(_data);
-    			}
     		}
 	    },
 

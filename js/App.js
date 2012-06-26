@@ -1,38 +1,85 @@
-App = {};
+var App = (function ($) {
+	'use strict';
+    var
+        appParts = ['Settings', 'EventManager', 'Ui', 'Inspector', 'Storage'],
+        appIsBuilt = false,
+        appPartsLocation = '/js/App/',
+        modulesLocation = '/js/App/Modules/',
+        modulesCollection = {},
 
-App.Modules = (function(loader, $) {
-    loader.path('/js/App/Modules/');
-    var _collection = new Array,
+        LoaderFactory = function (collection) {
+            return function(name) {
+                if(collection[name])
+                    return collection[name];
+                
+                var dfd = $.Deferred(),
+                    modulePath = modulesLocation + moduleName + '/' + moduleName + '.js',
+                    moduleParams = modulesLocation + moduleName + '/params.json';
+                
+                $.when($.getScript(modulePath), $.getJSON(moduleParams))
+                .done(function (aScript, aJSON) {
+                    modulesCollection[moduleName].module.init.apply(initParams);
+                    console.log(aScript);
+                    console.log(aJSON);
+                    dfd.resolve();
+                });
+                return dfd.promise();
+            };
+        },
+        
+        ModuleManager = {
+            Modules: modulesCollection,
+            Get: LoaderFactory(modulesCollection),
+            Register: function (moduleName, obj) {
+                if(App.Settings.Debug.enabled)
+                    console.info('Registered module `' + moduleName + '`');
+                modulesCollection[moduleName] = {module: obj, params: {}};
+            },
+            LoadModulesByScheme: function () {
+                var list = App.Settings.ModulesScheme(),
+                    loc = window.location.pathname;
 
-        _getModule = function(moduleName, params, callback) {
-            if(!_collection[moduleName]) {
-                loader(moduleName, moduleName);
-                loader.ready(moduleName, function(){
-                    _collection[moduleName].init.apply(params);
-                    if(typeof callback=='function') {
-                        callback();
-                    }
+                $.each(list[loc], function (i, val) {
+                    LoaderFactory (val);
                 });
             }
-            return _collection[moduleName];
         },
-        
-        _registerModule = function(moduleName, obj) {
-            console.info('Registered module `'+moduleName+'`');
-            _collection[moduleName] = obj;
-        },
-        
-        _getRunningModules = function(){
-            return _collection;
-        };
-        
-    return {
-        Register: _registerModule,
-        List: _getRunningModules,
-        Get: _getModule
-    }
-}($script, jQuery));
 
+        loadAppPart = function (i)
+        {
+            $.getScript(appPartsLocation + appParts[i] + '.js')
+            .done(function () {
+                if(i < appParts.length-1)
+                    loadAppPart(++i);
+                else {
+                    App.Modules.LoadModulesByScheme();
+                    appIsBuilt = true;
+                }
+            })
+            .fail(function () {
+                console.warn('Error: ' + appPartsLocation + appParts[i] + '.js');
+            });
+        }
+    
+    ;return {
+        Build: function (i) {
+            if(appIsBuilt === false)
+                loadAppPart (i);
+            else return false;
+        },
+        Modules: ModuleManager
+    };
+}(jQuery));
+
+/**
+ * Build App with Internal Modules
+ */
+var i = 0;
+App.Build(i);
+
+/**
+ * Help functions
+ */
 if (!window.console) {
   window.console = (function(console){
     for (var i = 0, a = ['log', 'debug', 'info', 'warn', 'error', 'assert', 'dir', 'time', 'timeEnd', 'count', 'trace', 'profile', 'profileEnd'], l = a.length, noop = function(){}; i < l; i += 1)
@@ -42,7 +89,7 @@ if (!window.console) {
 }
 
 var debugLog = function(msg, url, line) {
-    console.warn(msg + '; url: ' + (url || '') + (line === undefined ? '' : ' (line: ' +  line + ')'));
+    console.warn(msg + '; url: ' + (url || '') + (line === undefined ? '' : ' on line: '+ line));
     if (!App.Settings.Debug) return;
     var errorData = {
         msg: msg,
