@@ -360,4 +360,4 @@ App.Ui = (function($){
             }
         }
     }
-})(jQuery)
+}(jQuery));
