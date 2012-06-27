@@ -1,5 +1,4 @@
 App = App || {};
-
 App.Storage = (function($){
     'use strict';
 
@@ -10,14 +9,14 @@ App.Storage = (function($){
             window.attachEvent("onstorage", _handleLocalStorage);
         };
     }
-    
-    if($('#error-dialog').length==0) {
+
+    if($('#error-dialog').length === 0) {
         var ed = document.createElement('div');
         $(ed).addClass('dialog').attr('id', 'error-dialog').attr('title', 'Server Error').css({width: '600px', height: '470px', display: 'none'}).appendTo('body');
         App.EM.trig('ui.element.new', ['error-dialog']);
     }
 
-    var _cache = new Array(),
+    var _cache = [],
     	_successCallback = null,
     	_useCache = false,
     	_isSilentAjax = false,
@@ -38,7 +37,7 @@ App.Storage = (function($){
     		},
     		success: function(response) {
     		    App.Settings.ajaxResponders.success();
-    		    if(_cache[_ajaxParams.url]!==false) {
+    		    if(_cache[_ajaxParams.url] !== false) {
         			if(App.Settings.ajaxResponders.errorRequestProcessor(response, this.dataType)) {
                         _cache[_ajaxParams.url] = response;
             			if(typeof _successCallback == 'function') {
@@ -61,7 +60,7 @@ App.Storage = (function($){
                 _successCallback = callback;
             }
             if(_useCache) {
-                if(_cache[_ajaxParams.url] != undefined) {
+                if(_cache[_ajaxParams.url] !== undefined) {
                     if(typeof _successCallback == 'function') {
                         _successCallback(_cache[_ajaxParams.url]);
                         return true;
@@ -230,4 +229,4 @@ App.Storage = (function($){
     	Session: sessionStorageProcessor
     }
 
-}(jQuery))
+}(jQuery));

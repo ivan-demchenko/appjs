@@ -1,17 +1,22 @@
 App = App || {};
+
 App.Settings = {
     baseURL: '/',
 	dateFormat: 'd M, yy',
+	modulesLocation: '/AppJS/js/App/Modules/',
 	Debug: {
 	    enabled: true,
+	    sendReports: false,
 	    errorReportingUrl: '/error.php',
         ajaxErrorKey: 'error',
         ajaxErrorMessageKey: 'rawMessage',
 	},
-	ModulesScheme: function () {
-	    var scheme = []
-	    scheme['/'] = ['dialogButton'];
-	    return scheme;
+	GetModulesScheme: function () {
+	    var s = {
+	    	'/': ['dialogButton'],
+	    	'/AppJS/index.html': ['dialogButton']
+	    };
+	    return s;
 	},
 	UI: {
 		Initial: {

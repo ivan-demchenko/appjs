@@ -1,56 +1,58 @@
 var App = (function ($) {
 	'use strict';
-    var
+	
+	function LoaderFactory (collection) {
+		return function(name) {
+		    if(collection[name])
+		        return collection[name];
+		    
+		    var modulePath = App.Settings.modulesLocation + name + '/' + name + '.js',
+		        moduleParams = App.Settings.modulesLocation + name + '/params.json';
+		        
+	        $.when($.getScript(modulePath), $.getJSON(moduleParams)).then(function(){
+	        	App.Modules.Get(name).module.init();
+	        });
+	    };
+	};
+	
+	var
         appParts = ['Settings', 'EventManager', 'Ui', 'Inspector', 'Storage'],
         appIsBuilt = false,
-        appPartsLocation = '/js/App/',
-        modulesLocation = '/js/App/Modules/',
-        modulesCollection = {},
+        appPartsLocation = '/AppJS/js/App/',
 
-        LoaderFactory = function (collection) {
-            return function(name) {
-                if(collection[name])
-                    return collection[name];
-                
-                var dfd = $.Deferred(),
-                    modulePath = modulesLocation + moduleName + '/' + moduleName + '.js',
-                    moduleParams = modulesLocation + moduleName + '/params.json';
-                
-                $.when($.getScript(modulePath), $.getJSON(moduleParams))
-                .done(function (aScript, aJSON) {
-                    modulesCollection[moduleName].module.init.apply(initParams);
-                    console.log(aScript);
-                    console.log(aJSON);
-                    dfd.resolve();
-                });
-                return dfd.promise();
-            };
-        },
-        
-        ModuleManager = {
-            Modules: modulesCollection,
-            Get: LoaderFactory(modulesCollection),
-            Register: function (moduleName, obj) {
-                if(App.Settings.Debug.enabled)
-                    console.info('Registered module `' + moduleName + '`');
-                modulesCollection[moduleName] = {module: obj, params: {}};
-            },
-            LoadModulesByScheme: function () {
-                var list = App.Settings.ModulesScheme(),
-                    loc = window.location.pathname;
-
-                $.each(list[loc], function (i, val) {
-                    LoaderFactory (val);
-                });
-            }
-        },
-
-        loadAppPart = function (i)
+		/**
+		 * Module Manager 
+		 */
+		ModuleManager = function () {
+			var runningModules = [],
+				factory = LoaderFactory(runningModules);
+				
+			return {
+				Get: factory,
+				Register: function (moduleName, obj)
+				{
+			        if(App.Settings.Debug.enabled)
+			            console.info('Registered module `' + moduleName + '`');
+			        runningModules[moduleName] = {module: obj, params: {}};
+				},
+				LoadModulesByScheme: function ()
+				{
+			        var list = App.Settings.GetModulesScheme(),
+			            loc = window.location.pathname;
+			
+			        for(var i = 0; i < list[loc].length; i++) {
+			        	factory(list[loc][i]);
+			        }
+				}
+			}
+		},
+		
+        prepareApp = function (i)
         {
             $.getScript(appPartsLocation + appParts[i] + '.js')
             .done(function () {
-                if(i < appParts.length-1)
-                    loadAppPart(++i);
+                if(i < appParts.length - 1)
+                    prepareApp(++i);
                 else {
                     App.Modules.LoadModulesByScheme();
                     appIsBuilt = true;
@@ -60,14 +62,14 @@ var App = (function ($) {
                 console.warn('Error: ' + appPartsLocation + appParts[i] + '.js');
             });
         }
-    
+
     ;return {
-        Build: function (i) {
+        Build: function(i) {
             if(appIsBuilt === false)
-                loadAppPart (i);
+                prepareApp(i);
             else return false;
         },
-        Modules: ModuleManager
+        Modules: new ModuleManager()
     };
 }(jQuery));
 
@@ -90,14 +92,15 @@ if (!window.console) {
 
 var debugLog = function(msg, url, line) {
     console.warn(msg + '; url: ' + (url || '') + (line === undefined ? '' : ' on line: '+ line));
-    if (!App.Settings.Debug) return;
-    var errorData = {
-        msg: msg,
-        url: url,
-        line: line,
-        location: document.location.href
+    if (App.Settings.Debug.enabled && App.Settings.Debug.sendReports) {
+	    var errorData = {
+	        msg: msg,
+	        url: url,
+	        line: line,
+	        location: document.location.href
+	    }
+	    $.post(App.Settings.errorReportingUrl, errorData);
     }
-    $.post(App.Settings.errorReportingUrl, errorData);
 };
 
 window.onerror = function(msg, url, line){

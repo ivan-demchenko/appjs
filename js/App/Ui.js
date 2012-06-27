@@ -306,8 +306,9 @@ App.Ui = (function($){
          */
         FormHandler: function(element, params) {
             var _form = $(element),
-                _customValidation = null,
-                _validator = null,
+                _customValidation,
+                _validator,
+                _formSender = null, // Object with rules
                 _elementsArray = _form.find('input, select, select, textarea');
             /**
              * Init function
@@ -333,9 +334,10 @@ App.Ui = (function($){
                     }
                 },
                 /*
-                 * Force form submition
+                 * Run form submition
                  */
-                Send: function(success){
+                Send: function(success)
+                {
                     _form.submit();
                     return this;
                 },
@@ -358,4 +360,4 @@ App.Ui = (function($){
             }
         }
     }
-})(jQuery)
+}(jQuery));
