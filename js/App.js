@@ -3,22 +3,33 @@ var App = (function ($) {
 	
 	function LoaderFactory (collection) {
 		return function(name) {
-		    if(collection[name])
+		    if(collection[name]) {
 		        return collection[name];
-		    
-		    var modulePath = App.Settings.modulesLocation + name + '/' + name + '.js',
+		    }
+
+		    var 
+    		    d = $.Deferred(),
+                modulePath = App.Settings.modulesLocation + name + '/' + name + '.js',
 		        moduleParams = App.Settings.modulesLocation + name + '/params.json';
-		        
-	        $.when($.getScript(modulePath), $.getJSON(moduleParams)).then(function(){
-	        	App.Modules.Get(name).module.init();
-	        });
+            $.when($.getScript(modulePath), $.getJSON(moduleParams))
+            .done(function(dialog, params){
+    	       App.Modules.Get(name).init.apply(App.Modules.Get(name), [params[0]]);
+    	       d.resolve();
+            })
+            .fail(function(){
+                if(App.Settings.Debug.enabled) {
+                    console.warn('Error loading module ' + name);
+                }
+                d.reject();
+            });
+            return d.promise();
 	    };
 	};
 	
 	var
         appParts = ['Settings', 'EventManager', 'Ui', 'Inspector', 'Storage'],
         appIsBuilt = false,
-        appPartsLocation = '/AppJS/js/App/',
+        appPartsLocation = '/js/App/',
 
 		/**
 		 * Module Manager 
@@ -33,7 +44,10 @@ var App = (function ($) {
 				{
 			        if(App.Settings.Debug.enabled)
 			            console.info('Registered module `' + moduleName + '`');
-			        runningModules[moduleName] = {module: obj, params: {}};
+			        runningModules[moduleName] = obj;
+				},
+				RinningModules: function() {
+				    return runningModules;
 				},
 				LoadModulesByScheme: function ()
 				{

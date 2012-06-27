@@ -60,9 +60,18 @@ App.EM = (function($){
 		    if(App.Settings.Debug.enabled) {
     		    console.log( 'Trigged: ' + eventName + ', with event data: ' + (eventData == undefined ? 'no data' : stringify(eventData)) );
     		}
-			if(_eventsArray[eventName] !== undefined) {
-				_eventsArray[eventName].raise(eventData);
-			}	
+    		var module = eventName.split(':')[0];
+            if(App.Modules.RinningModules()[module] !== undefined) {
+                if(_eventsArray[eventName] !== undefined) {
+                    _eventsArray[eventName].raise(eventData);
+                }
+            } else {
+                App.Modules.Get(module).done(function(){
+                    if(_eventsArray[eventName] !== undefined) {
+                        _eventsArray[eventName].raise(eventData);
+                    }
+                });
+            }	
 			return this;
 		},
 		

@@ -1,21 +1,19 @@
 (function($){
 'use strict';
-
-	var
-        _bindEventListeners = function() {
+    var
+        params = {},
+        bindEventListeners = function() {
             $('#create-item').click(function(){
-                App.Modules.Get('workDialog', function(){
-                    App.EM.trig('workDialog.openDialog');
-                });
+                App.EM.trig('workDialog:openDialog');
             });
         },
 
         dialogButton = {
-            init: function() {
-                _bindEventListeners();
+            init: function(moduleParams) {
+                params = moduleParams;
+                bindEventListeners();
             }
         }
 
-    App.Modules.Register('dialogButton', dialogButton);
-
+App.Modules.Register('dialogButton', dialogButton);
 }(jQuery));

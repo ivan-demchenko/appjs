@@ -1,9 +1,8 @@
 App = App || {};
-
 App.Settings = {
     baseURL: '/',
 	dateFormat: 'd M, yy',
-	modulesLocation: '/AppJS/js/App/Modules/',
+	modulesLocation: '/js/App/Modules/',
 	Debug: {
 	    enabled: true,
 	    sendReports: false,
