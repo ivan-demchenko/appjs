@@ -1,31 +1,33 @@
 var App = (function ($) {
 	'use strict';
-	
-	function LoaderFactory (collection) {
-		return function(name) {
+
+	function LoaderFactory(collection) {
+		return function(path) { // = SubFolder/workDialog
+		    var slices = path.split('/'),
+		        name = slices[ slices.length - 1 ]; // = workDialog
+
 		    if(collection[name]) {
 		        return collection[name];
 		    }
 
 		    var 
     		    d = $.Deferred(),
-                modulePath = App.Settings.modulesLocation + name + '/' + name + '.js',
-		        moduleParams = App.Settings.modulesLocation + name + '/params.json';
-            $.when($.getScript(modulePath), $.getJSON(moduleParams))
-            .done(function(dialog, params){
-    	       App.Modules.Get(name).init.apply(App.Modules.Get(name), [params[0]]);
-    	       d.resolve();
-            })
-            .fail(function(){
+                modulePath = App.Settings.modulesLocation + path + '/' + name + '.js',
+		        moduleParams = App.Settings.modulesLocation + path + '/params.json';
+
+            $.when($.getScript(modulePath), $.getJSON(moduleParams)).done(function(module, params){
+                App.Modules.Get(name).init.apply(App.Modules.Get(name), [params[0]]);
+                d.resolve();
+            }).fail(function(){
                 if(App.Settings.Debug.enabled) {
-                    console.warn('Error loading module ' + name);
+                    console.error('Error loading module ' + name);
                 }
                 d.reject();
             });
             return d.promise();
 	    };
 	};
-	
+
 	var
         appParts = ['Settings', 'EventManager', 'Ui', 'Inspector', 'Storage'],
         appIsBuilt = false,
@@ -34,22 +36,27 @@ var App = (function ($) {
 		/**
 		 * Module Manager 
 		 */
-		ModuleManager = function () {
+		ModuleManager = function() {
 			var runningModules = [],
 				factory = LoaderFactory(runningModules);
 				
 			return {
 				Get: factory,
-				Register: function (moduleName, obj)
+
+				Register: function(moduleName, obj)
 				{
-			        if(App.Settings.Debug.enabled)
+			        if(App.Settings.Debug.enabled) {
 			            console.info('Registered module `' + moduleName + '`');
+			        }
 			        runningModules[moduleName] = obj;
 				},
-				RinningModules: function() {
+
+				RunningModules: function()
+				{
 				    return runningModules;
 				},
-				LoadModulesByScheme: function ()
+
+				LoadModulesByScheme: function()
 				{
 			        var list = App.Settings.GetModulesScheme(),
 			            loc = window.location.pathname;
@@ -60,11 +67,10 @@ var App = (function ($) {
 				}
 			}
 		},
-		
-        prepareApp = function (i)
-        {
+
+        prepareApp = function(i) {
             $.getScript(appPartsLocation + appParts[i] + '.js')
-            .done(function () {
+            .done(function() {
                 if(i < appParts.length - 1)
                     prepareApp(++i);
                 else {
@@ -72,7 +78,7 @@ var App = (function ($) {
                     appIsBuilt = true;
                 }
             })
-            .fail(function () {
+            .fail(function() {
                 console.warn('Error: ' + appPartsLocation + appParts[i] + '.js');
             });
         }

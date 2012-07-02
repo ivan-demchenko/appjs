@@ -6,14 +6,17 @@
     	_dialogElement = null,
 
     	_methods = {
-        	loadDialogForm: function() {
+        	loadDialogForm: function()
+        	{
     	    	App.Storage.Ajax.UseCache(true).ResponseType('html').Get('/content/dialog.html', function(data){
     	    		App.Collection.Dialogs[_dialogElementID].SetTitle('Create New Item').SetContent(data).Modal().Show();
-                    App.EM.trig('ui.element.injected', {type:'dialog', scope:'#'+_dialogElementID});
+                    App.EM.trig('UI:injected', {type:'dialog', scope:'#'+_dialogElementID});
                     App.Collection.Inputs['city-name'].setDataSourse(_parseCityNames);
     	    	});
     	    },
-    	    saveItem: function() {
+    	    
+    	    saveItem: function()
+    	    {
     	    	console.log('Item saved');
     	    }
         },
@@ -21,12 +24,14 @@
         /**
          * Initialize evets listeners for this module
          */
-        _initEventsListeners = function() {
-        	App.EM.bind('workDialog.openDialog', _methods.loadDialogForm, this);
-        	App.EM.bind('workDialog.save', _methods.saveItem, this);
+        _initEventsListeners = function()
+        {
+        	App.EM.bind('workDialog:openDialog', _methods.loadDialogForm, this);
+        	App.EM.bind('workDialog:save', _methods.saveItem, this);
         },
 
-        _parseCityNames = function(request, response) {
+        _parseCityNames = function(request, response)
+        {
             App.Storage.Ajax
                 .UseCache(false)
                 .Data({featureClass: "P", style: "full", name_startsWith: request.term })
@@ -54,30 +59,29 @@
         			App.Settings.defaultScope.append(_dialogElementID);
         		}
         	}
-        }
+        },
     
-    /**
-     * Initialize UI elements handlers that perpesent
-     * bussiness logic, comfort or some other features.
-     */
-    function _initElementsHandlers() {
-    }
+        /**
+         * Initialize UI elements handlers that perpesent
+         * bussiness logic, comfort or some other features.
+         */
+        _initElementsHandlers = function() {
+        },
     
-    /**
-     * Bootstrap of module 
-     */
-    function _initialize(int1, int2) {
-    	_initMarkup();
-    	_initEventsListeners();
-    }
+        /**
+         * Bootstrap of module 
+         */
+        _initialize = function() {
+        	_initMarkup();
+        	_initEventsListeners();
+        };
 	
-	/**
-	 * Public interface of a Module 
-	 */
-    var workDialog = {
-        init: _initialize
-    }
-    
-    App.Modules.Register('workDialog', workDialog);
-    
+    	/**
+    	 * Public interface of a Module 
+    	 */
+        var workDialog = {
+            init: _initialize
+        };
+
+App.Modules.Register('workDialog', workDialog);    
 })(jQuery);

@@ -20,8 +20,8 @@ App.Inspector = (function($){
      * DOM Responders
      * ----------------------------------------------------------
      */
-    App.EM.bind("ui.element.new", _inspectElement);
-    App.EM.bind("ui.element.option.set", function(event, elemType, elem, opt, val) {
+    App.EM.bind("UI:new", _inspectElement);
+    App.EM.bind("UI:optionSet", function(event, elemType, elem, opt, val) {
         switch(elemType) {
             case 'dialog': {
                 $(elem).dialog("option", opt, val);
@@ -50,7 +50,7 @@ App.Inspector = (function($){
         }
     });
 
-    App.EM.bind("ui.element.injected", function(data) {
+    App.EM.bind("UI:injected", function(data) {
         _inspectElement(data.type, data.scope);
         _inspectScope(data.scope+' ');
     });

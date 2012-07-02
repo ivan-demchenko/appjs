@@ -13,7 +13,7 @@ App.Storage = (function($){
     if($('#error-dialog').length === 0) {
         var ed = document.createElement('div');
         $(ed).addClass('dialog').attr('id', 'error-dialog').attr('title', 'Server Error').css({width: '600px', height: '470px', display: 'none'}).appendTo('body');
-        App.EM.trig('ui.element.new', ['error-dialog']);
+        App.EM.trig('UI:new', ['error-dialog']);
     }
 
     var _cache = [],

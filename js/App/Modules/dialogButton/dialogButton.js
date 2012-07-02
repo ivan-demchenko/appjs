@@ -4,7 +4,7 @@
         params = {},
         bindEventListeners = function() {
             $('#create-item').click(function(){
-                App.EM.trig('workDialog:openDialog');
+                App.EM.trig('SubFolder/workDialog:openDialog');
             });
         },
 
