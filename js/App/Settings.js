@@ -3,6 +3,7 @@ App.Settings = {
     baseURL: '/',
 	dateFormat: 'd M, yy',
 	modulesLocation: '/js/App/Modules/',
+	defaultScope: $('body'),
 	Debug: {
 	    enabled: true,
 	    sendReports: false,

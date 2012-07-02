@@ -26,7 +26,8 @@ App.EM = (function($){
 	    }
 	};
 	
-	var
+    var
+        modulesCache = App.Modules.RunningModules()
 		_eventsArray = new Array,
 
 		_bindEvent = function(eventName, callbackFunction, context)
@@ -58,24 +59,25 @@ App.EM = (function($){
 		    if(App.Settings.Debug.enabled) {
     		    console.log( 'Trigged: ' + eventName + ', with event data: ' + (eventData == undefined ? 'no data' : stringify(eventData)) );
     		}
-    		
-    		var moduleID = eventName.split(':')[0],
-    		    modulesCache = App.Modules.RunningModules();
+    		var modulePath = eventName.split(':')[0],
+    		    slices = modulePath.split('/'),
+                moduleID = slices[ slices.length - 1 ],
+                moduleIDEvent = moduleID + ':' + eventName.split(':')[1];
 
-            if (moduleID == 'UI') {
-                _eventsArray[eventName].raise(eventData);
+            if (moduleID == 'UI' || moduleID == 'Storage' || moduleID == 'Core') {
+                _eventsArray[moduleIDEvent].raise(eventData);
                 return this;
             }
 
             if(modulesCache[moduleID] === undefined) {
-                App.Modules.Get(moduleID).done(function() {
-                    if(_eventsArray[eventName] !== undefined) {
-                        _eventsArray[eventName].raise(eventData);
+                App.Modules.Get(modulePath).done(function() {
+                    if(_eventsArray[moduleIDEvent] !== undefined) {
+                        _eventsArray[moduleIDEvent].raise(eventData);
                     }
                 });
             } else {
-                if(_eventsArray[eventName] !== undefined) {
-                    _eventsArray[eventName].raise(eventData);
+                if(_eventsArray[moduleIDEvent] !== undefined) {
+                    _eventsArray[moduleIDEvent].raise(eventData);
                 }
             }
 

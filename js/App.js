@@ -10,8 +10,7 @@ var App = (function ($) {
 		        return collection[name];
 		    }
 
-		    var 
-    		    d = $.Deferred(),
+		    var d = $.Deferred(),
                 modulePath = App.Settings.modulesLocation + path + '/' + name + '.js',
 		        moduleParams = App.Settings.modulesLocation + path + '/params.json';
 

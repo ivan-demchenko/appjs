@@ -2,14 +2,14 @@
     'use strict';
 
     var 
-        _dialogElementID = 'some-dialog',
+        _params = null,
     	_dialogElement = null,
 
     	_methods = {
         	loadDialogForm: function()
         	{
     	    	App.Storage.Ajax.UseCache(true).ResponseType('html').Get('/content/dialog.html', function(data){
-    	    		App.Collection.Dialogs[_dialogElementID].SetTitle('Create New Item').SetContent(data).Modal().Show();
+    	    		App.Collection.Dialogs[_params.dialogElementID].SetTitle('Create New Item').SetContent(data).Modal().Show();
                     App.EM.trig('UI:injected', {type:'dialog', scope:'#'+_dialogElementID});
                     App.Collection.Inputs['city-name'].setDataSourse(_parseCityNames);
     	    	});
@@ -47,16 +47,16 @@
         },
 
         /**
-         * Create HTML snippets and append them to Default App Scope 
+         * Create HTML snippets and append them to Default App Scope
          */
         _initMarkup = function()
         {
         	if(_dialogElement === null) {
-        		if( $('#'+_dialogElementID).length > 0 ) {
-        			_dialogElement = $('#'+_dialogElementID);
+        		if( $('#'+_params.dialogElementID).length > 0 ) {
+        			_dialogElement = $('#'+_params.dialogElementID);
         		} else {
-        			_dialogElementID = $('<div class="dialog" id="'+_dialogElementID+'"></div>');
-        			App.Settings.defaultScope.append(_dialogElementID);
+        			_dialogElement = $('<div class="dialog" id="'+_params.dialogElementID+'"></div>');
+        			App.Settings.defaultScope.append(_params.dialogElementID);
         		}
         	}
         },
@@ -71,7 +71,8 @@
         /**
          * Bootstrap of module 
          */
-        _initialize = function() {
+        _initialize = function(params) {
+            _params = params;
         	_initMarkup();
         	_initEventsListeners();
         };
