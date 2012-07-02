@@ -10,8 +10,8 @@
         	{
     	    	App.Storage.Ajax.UseCache(true).ResponseType('html').Get('/content/dialog.html', function(data){
     	    		App.Collection.Dialogs[_params.dialogElementID].SetTitle('Create New Item').SetContent(data).Modal().Show();
-                    App.EM.trig('UI:injected', {type:'dialog', scope:'#'+_dialogElementID});
-                    App.Collection.Inputs['city-name'].setDataSourse(_parseCityNames);
+                    App.EM.trig('UI:injected', {type: 'dialog', scope: '#' + _params.dialogElementID});
+                    App.Collection.Inputs['city-name'].setDataSourse(_getCityNames);
     	    	});
     	    },
     	    
@@ -30,7 +30,7 @@
         	App.EM.bind('workDialog:save', _methods.saveItem, this);
         },
 
-        _parseCityNames = function(request, response)
+        _getCityNames = function(request, response)
         {
             App.Storage.Ajax
                 .UseCache(false)

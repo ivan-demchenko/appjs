@@ -1,30 +1,26 @@
-<p>
-    <strong>New item</strong>
-</p>
-<form action="/send" method="post" id="test-dialog-form">
+<form action="/send" method="post" class="form" id="test-dialog-form">
+    <fieldset>
 	<dl>
 		<dt><label for="publish-date">Publishing date</label></dt>
 		<dd>
-            <input type="text" class="datePicker" id="publish-date">
-            <span class="error hidden">Here is error message</span>
+            <input type="text" class="datePicker required" id="publish-date">
         </dd>
 
 		<dt><label for="publish-date">Start time</label></dt>
 		<dd>
-		    <input type="text" class="inputTime" id="time-to-start">
-		    <span class="error hidden">Here is error message</span>
+		    <input type="text" class="inputTime required" id="time-to-start">
 		</dd>
-		
+
 		<dt><label for="phone-number">City name</label></dt>
 		<dd>
-			<input type="text" class="autocomplete" id="city-name">
-		    <span class="error hidden">Here is error message</span>
+			<input type="text" class="autocomplete required" id="city-name">
 		</dd>
-		
+
 		<dt></dt>
         <dd><div class="slider" id="how-much"></div></dd>
-        
+
 		<dt></dt>
 		<dd><input type="submit" /></dd>
 	</dl>
+	</fieldset>
 </form>
