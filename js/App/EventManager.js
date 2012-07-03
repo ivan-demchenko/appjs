@@ -34,7 +34,7 @@ App.EM = (function ($) {
 	
 	_bindEvent = function (eventName, callbackFunction, context) {
 		if (App.Settings.Debug.enabled) {
-			console.log('Binded: ' + eventName + ', with responder: ' + callbackFunction.toString().substr(0, 100) + '...');
+			console.log('Binded: ' + eventName + ', with responder: ', callbackFunction);
 		}
 		
 		var evt;

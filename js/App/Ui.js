@@ -325,10 +325,10 @@ App.Ui = (function ($) {
 			 */
 			return {
 				Init : function () {
-					// Attach submit hander to form only if we don't use it to send files
 					_validator = _form.validate({
 							submitHandler : function (form) {
-								_form.ajaxSubmit();
+								alert('Form has been sent');
+								//_form.ajaxSubmit();
 							}
 						});
 					return this;
@@ -353,9 +353,9 @@ App.Ui = (function ($) {
 				 */
 				ValidationRules : function (rules) {
 					if (rules)
-						_validator.rules(rules);
+						_form.validate(rules);
 					else
-						_validator.rules();
+						return _form.rules();
 				},
 				
 				/**

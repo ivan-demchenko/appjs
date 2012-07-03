@@ -1,6 +1,29 @@
 {
-    "dialogElementID": "some-dialog",
-    "validationRules": {
-        
-    }
+	"dialogElementID" : "some-dialog",
+	"validationRules" : {
+		"rules" : {
+			"publish-date" : {
+				"required" : true
+			},
+			"time-to-start" : {
+				"required" : true
+			},
+			"city-name" : {
+				"required" : true,
+				"minlength:" : 4
+			}
+		},
+		"messages": {
+			"publish-date" : {
+				"required" : "This field is required"
+			},
+			"time-to-start" : {
+				"required" : "This field is required"
+			},
+			"city-name" : {
+				"required" : "This field is required",
+				"minlength:" : "City name is must be longer"
+			}
+		}
+	}
 }

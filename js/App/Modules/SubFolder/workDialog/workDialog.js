@@ -24,7 +24,7 @@
 					}));
 			});
 		},
-		
+
 		loadDialogForm : function () {
 			App.Storage.Ajax.UseCache(true).ResponseType('html').Get('/content/dialog.html', function (data) {
 				App.Collection.Dialogs[_params.dialogElementID].SetTitle('Create New Item').SetContent(data).Modal().Show();
@@ -32,15 +32,16 @@
 					type : 'dialog',
 					scope : '#' + _params.dialogElementID
 				});
+				App.Collection.Forms['test-dialog-form'].ValidationRules(_params.validationRules);
 				App.Collection.Inputs['city-name'].setDataSourse(_methods._getCityNames);
 			});
 		},
-		
+
 		saveItem : function () {
 			console.log('Item saved');
 		}
 	},
-	
+
 	/**
 	 * Initialize evets listeners for this module
 	 */
@@ -48,7 +49,7 @@
 		App.EM.bind('workDialog:openDialog', _methods.loadDialogForm, this);
 		App.EM.bind('workDialog:save', _methods.saveItem, this);
 	},
-	
+
 	/**
 	 * Create HTML snippets and append them to Default App Scope
 	 */
@@ -62,13 +63,13 @@
 			}
 		}
 	},
-	
+
 	/**
 	 * Initialize UI elements handlers that perpesent
 	 * bussiness logic, comfort or some other features.
 	 */
 	_initElementsHandlers = function () {},
-	
+
 	/**
 	 * Bootstrap of module
 	 */
@@ -77,13 +78,13 @@
 		_initMarkup();
 		_initEventsListeners();
 	};
-	
+
 	/**
 	 * Public interface of a Module
 	 */
 	var workDialog = {
 		init : _initialize
 	};
-	
+
 	App.Modules.Register('workDialog', workDialog);
 })(jQuery);
