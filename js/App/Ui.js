@@ -326,11 +326,12 @@ App.Ui = (function ($) {
 			return {
 				Init : function () {
 					_validator = _form.validate({
-							submitHandler : function (form) {
-								alert('Form has been sent');
-								//_form.ajaxSubmit();
-							}
-						});
+						debug: true,
+						submitHandler : function (form) {
+							alert('Form has been sent');
+							//_form.ajaxSubmit();
+						}
+					});
 					return this;
 				},
 				/*
@@ -340,6 +341,10 @@ App.Ui = (function ($) {
 					if (afterBindElements != null && (typeof afterBindElements === 'function')) {
 						afterBindElements();
 					}
+				},
+				Reset : function() {
+					_validator.resetForm();
+					return this;
 				},
 				/*
 				 * Run form submition
@@ -351,11 +356,14 @@ App.Ui = (function ($) {
 				/*
 				 * User defined validation function
 				 */
-				ValidationRules : function (rules) {
-					if (rules)
-						_form.validate(rules);
-					else
+				ValidationRules : function (inpRules) {
+					if (inpRules !== undefined) {
+						//_form.validate(inpRules);
+						_validator.settings.rules = inpRules.rules;
+						_validator.settings.messages = inpRules.messages;
+					} else {
 						return _form.rules();
+					}
 				},
 				
 				/**

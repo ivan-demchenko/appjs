@@ -1,10 +1,27 @@
 var App = (function ($) {
 	'use strict';
 	
-	function LoaderFactory(collection) {
-		return function (path) { // = SubFolder/workDialog
+	var
+	appParts = ['Settings', 'EventManager', 'Ui', 'Inspector', 'Storage'],
+	appIsBuilt = false,
+	appPartsLocation = '/js/App/',
+	
+	/**
+	 * Module loader
+	 * 
+	 * Modules are placed in js/App/Modules directory. Each module can also be placed in subfolder.
+	 * So, path to module could be `js/App/Modules/module/module.js` or `js/App/Modules/dir/subdir/submodule/submodule.js`
+	 * 
+	 * Module consists of JS file and JSON file. JS file consists of business logic. JSON file consits of parameters.
+	 * 
+	 * JS file must contain `init` function that will accept an object with params from JSON file.
+	 * 
+	 * @return function
+	 */
+	LoaderFactory = function (collection) {
+		return function (path) { // = SubFolder/module
 			var slices = path.split('/'),
-			name = slices[slices.length - 1]; // = workDialog
+			name = slices[slices.length - 1]; // = module
 			
 			if (collection[name]) {
 				return collection[name];
@@ -25,15 +42,14 @@ var App = (function ($) {
 			});
 			return d.promise();
 		};
-	};
-	
-	var
-	appParts = ['Settings', 'EventManager', 'Ui', 'Inspector', 'Storage'],
-	appIsBuilt = false,
-	appPartsLocation = '/js/App/',
+	},
 	
 	/**
 	 * Module Manager
+	 * 
+	 * This is an object that manipulates with objects
+	 * 
+	 * @return object
 	 */
 	ModuleManager = function () {
 		var runningModules = [],
@@ -67,9 +83,9 @@ var App = (function ($) {
 	prepareApp = function (i) {
 		$.getScript(appPartsLocation + appParts[i] + '.js')
 		.done(function () {
-			if (i < appParts.length - 1)
+			if (i < appParts.length - 1) {
 				prepareApp(++i);
-			else {
+			} else {
 				App.Modules.LoadModulesByScheme();
 				appIsBuilt = true;
 			}
@@ -78,6 +94,7 @@ var App = (function ($) {
 			console.warn('Error: ' + appPartsLocation + appParts[i] + '.js');
 		});
 	};
+
 	return {
 		Build : function (i) {
 			if (appIsBuilt === false)
@@ -87,8 +104,7 @@ var App = (function ($) {
 		},
 		Modules : new ModuleManager()
 	};
-}
-	(jQuery));
+})(jQuery);
 
 /**
  * Build App with Internal Modules

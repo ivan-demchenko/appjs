@@ -2,25 +2,25 @@
 	"dialogElementID" : "some-dialog",
 	"validationRules" : {
 		"rules" : {
-			"publish-date" : {
+			"publishDate" : {
 				"required" : true
 			},
-			"time-to-start" : {
+			"timeToStart" : {
 				"required" : true
 			},
-			"city-name" : {
+			"cityName" : {
 				"required" : true,
 				"minlength:" : 4
 			}
 		},
 		"messages": {
-			"publish-date" : {
+			"publishDate" : {
 				"required" : "This field is required"
 			},
-			"time-to-start" : {
+			"timeToStart" : {
 				"required" : "This field is required"
 			},
-			"city-name" : {
+			"cityName" : {
 				"required" : "This field is required",
 				"minlength:" : "City name is must be longer"
 			}
