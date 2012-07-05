@@ -16,4 +16,4 @@
 	}
 	
 	App.Modules.Register('dialogButton', dialogButton);
-}(jQuery));
+})(jQuery);
