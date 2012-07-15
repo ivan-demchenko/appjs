@@ -1,7 +1,7 @@
 App = App || {};
 App.Storage = (function ($) {
 	'use strict';
-	
+
 	if (App.Settings.Debug.enabled) {
 		if (window.addEventListener) {
 			window.addEventListener("storage", _handleLocalStorage, false);
@@ -9,7 +9,7 @@ App.Storage = (function ($) {
 			window.attachEvent("onstorage", _handleLocalStorage);
 		};
 	}
-	
+
 	if ($('#error-dialog').length === 0) {
 		var ed = document.createElement('div');
 		$(ed).addClass('dialog').attr('id', 'error-dialog').attr('title', 'Server Error').css({
@@ -17,9 +17,9 @@ App.Storage = (function ($) {
 			height : '470px',
 			display : 'none'
 		}).appendTo('body');
-		App.EM.trig('UI:new', ['error-dialog']);
+		App.EM.trig('UI:new', '#error-dialog');
 	}
-	
+
 	var _cache = [],
 	_successCallback = null,
 	_useCache = false,
@@ -51,14 +51,14 @@ App.Storage = (function ($) {
 			}
 		}
 	},
-	
+
 	_handleLocalStorage = function (e) {
 		if (!e) {
 			e = window.event;
 		}
 		console.log('LocalStorage event: key: ' + e.key + ' old value: ' + e.oldValue + ', new value: ' + e.newValue + ', url: ' + e.url + ', ');
 	},
-	
+
 	_produceAjaxRequest = function (callback) {
 		if (typeof callback == 'function') {
 			_successCallback = callback;
@@ -73,7 +73,7 @@ App.Storage = (function ($) {
 		}
 		return $.ajax(_ajaxParams);
 	},
-	
+
 	/*
 	 * Ajax Processor
 	 * ---------------------------------
@@ -138,7 +138,7 @@ App.Storage = (function ($) {
 			return this;
 		}
 	},
-	
+
 	/*
 	 * LocalStorage Processor
 	 * ---------------------------------
@@ -180,7 +180,7 @@ App.Storage = (function ($) {
 			}
 		}
 	},
-	
+
 	/*
 	 * SessionStorage Processor
 	 * ---------------------------------
@@ -222,7 +222,7 @@ App.Storage = (function ($) {
 			}
 		}
 	}
-	
+
 	/*
 	 * Storage public interface
 	 * ---------------------------------
@@ -232,5 +232,5 @@ App.Storage = (function ($) {
 		Local : localProcessor,
 		Session : sessionStorageProcessor
 	}
-	
-}(jQuery));
+
+})(jQuery);

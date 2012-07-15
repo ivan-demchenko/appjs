@@ -27,13 +27,12 @@
 
 		loadDialogForm : function () {
 			App.Storage.Ajax.UseCache(true).ResponseType('html').Get('/content/dialog.html', function (data) {
-				App.Collection.Dialogs[_params.dialogElementID].SetTitle('Create New Item').SetContent(data).Modal().Show();
+				App.UI.Collection.dialog[_params.dialogElementID].SetTitle('Create New Item').SetContent(data).Modal().Show();
 				App.EM.trig('UI:injected', {
-					type : 'dialog',
-					scope : '#' + _params.dialogElementID
+					element : $('#' + _params.dialogElementID)
 				});
-				App.Collection.Forms['test-dialog-form'].ValidationRules(_params.validationRules);
-				App.Collection.Inputs['city-name'].setDataSourse(_methods._getCityNames);
+				App.UI.Collection.form['test-dialog-form'].ValidationRules(_params.validationRules);
+				App.UI.Collection.autocomplete['city-name'].setDataSourse(_methods._getCityNames);
 			});
 		},
 

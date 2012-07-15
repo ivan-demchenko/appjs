@@ -2,7 +2,7 @@ var App = (function ($) {
 	'use strict';
 	
 	var
-	appParts = ['Settings', 'EventManager', 'Ui', 'Inspector', 'Storage'],
+	appParts = ['Settings', 'UISettings', 'EventManager', 'UILibrary', 'UIBuilder', 'Inspector', 'Storage'],
 	appIsBuilt = false,
 	appPartsLocation = '/js/App/',
 	
@@ -91,7 +91,7 @@ var App = (function ($) {
 			}
 		})
 		.fail(function () {
-			console.warn('Error: ' + appPartsLocation + appParts[i] + '.js');
+			console.error('Error: ' + appPartsLocation + appParts[i] + '.js');
 		});
 	};
 
@@ -102,6 +102,7 @@ var App = (function ($) {
 			else
 				return false;
 		},
+		UI : {},
 		Modules : new ModuleManager()
 	};
 })(jQuery);
@@ -142,27 +143,20 @@ window.onerror = function (msg, url, line) {
 };
 
 function stringify(obj) {
-	var t = typeof(obj);
-	if (t != "object" || obj === null) {
-		if (t == "string")
-			obj = '"' + obj + '"';
-		return String(obj);
-	} else {
-		var n,
-		v,
-		json = [],
-		arr = (obj && obj.constructor == Array);
-		for (n in obj) {
-			v = obj[n];
-			t = typeof(v);
-			if (obj.hasOwnProperty(n)) {
-				if (t == "string")
-					v = '"' + v + '"';
-				else if (t == "object" && v !== null)
-					v = jQuery.stringify(v);
-				json.push((arr ? "" : '"' + n + '":') + String(v));
-			}
-		}
-		return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
-	}
-}
+    var t = typeof (obj);
+    if (t != "object" || obj === null) {
+        if (t == "string") obj = '"' + obj + '"';
+        return String(obj);
+    } else {
+        var n, v, json = [], arr = (obj && obj.constructor == Array);
+        for (n in obj) {
+            v = obj[n];
+            t = typeof(v);
+            if (obj.hasOwnProperty(n)) {
+                if (t == "string") v = '"' + v + '"'; else if (t == "object" && v !== null) v = v;
+                json.push((arr ? "" : '"' + n + '":') + String(v));
+            }
+        }
+        return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
+    }
+};

@@ -86,7 +86,7 @@ App.EM = (function ($) {
 	_getRespondersByEventName = function (eventName) {
 		for (var i in _eventsArray[eventName]._observers) {
 			var item = _eventsArray[eventName]._observers[i];
-			console.log(item.observer.toString());
+			return item.observer.toString();
 		}
 	};
 	
@@ -97,4 +97,4 @@ App.EM = (function ($) {
 		eventResponders : _getRespondersByEventName
 	}
 	
-}(jQuery));
+})(jQuery);
