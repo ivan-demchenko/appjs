@@ -115,6 +115,30 @@ var i = 0;
 App.Build(i);
 
 /**
+ * Very usefull function to create templates
+ * Borrowed from Douglas Crockford.
+ * 
+ * Ussage is very simple. Imagine, you have an object
+ * 
+ * var data = {
+ *	  title: 'C pocket reference',
+ *	  type: 'PDF Document',
+ *	  tag: 'programming',
+ *	}
+ * 
+ * and you wanna make a template from this. Then you just write such code:
+ * var html = "<tr> <td>{title}</td> <td>{type}</td> <td><a href="/tag/{tag}">{tag}</a></td> </tr>".supplant(data);
+ */
+String.prototype.supplant = function(o) {
+    return this.replace(/{([^{}]*)}/g,
+        function(a, b) {
+            var r = o[b];
+            return typeof r === 'string' || typeof r === 'number' ? r : a;
+        }
+    );
+};
+
+/**
  * Help functions
  */
 function noop(){};
