@@ -1,4 +1,4 @@
-App = App || {};
+App = App || {UI:{}};
 
 App.UI.Library = {
 	dialog : function (element, params) {

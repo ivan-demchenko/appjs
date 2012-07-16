@@ -1,12 +1,10 @@
-App = App || {};
+App = App || {UI:{}};
 
 App.UI.Builder = (function($, undefined){
-
 	return {
 		buildElement : function(elementType, elementInst, params) {
 			if(elementType) {
 				if(App.UI.Library.elementType === undefined) {
-					console.log(elementType, elementInst, App.UI.Library[elementType]);
 					var c = App.UI.Library[elementType],
 						h = new c(elementInst, params);
 					if(h.hasOwnProperty('init')) {

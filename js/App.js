@@ -97,10 +97,11 @@ var App = (function ($) {
 
 	return {
 		Build : function (i) {
-			if (appIsBuilt === false)
+			if (appIsBuilt === false) {
 				prepareApp(i);
-			else
+			} else {
 				return false;
+			}
 		},
 		UI : {},
 		Modules : new ModuleManager()
@@ -116,6 +117,8 @@ App.Build(i);
 /**
  * Help functions
  */
+function noop(){};
+
 if (!window.console) {
 	window.console = (function (console) {
 		for (var i = 0, a = ['log', 'debug', 'info', 'warn', 'error', 'assert', 'dir', 'time', 'timeEnd', 'count', 'trace', 'profile', 'profileEnd'], l = a.length, noop = function () {}; i < l; i += 1)
