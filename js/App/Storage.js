@@ -1,5 +1,4 @@
-App = App || {};
-App.Storage = (function ($) {
+(function (App, $) {
 	'use strict';
 
 	if (App.Settings.Debug.enabled) {
@@ -17,61 +16,60 @@ App.Storage = (function ($) {
 			height : '470px',
 			display : 'none'
 		}).appendTo('body');
-		App.EM.trig('UI:new', '#error-dialog');
+		App.EM.trig('NewHtmlElement', '#error-dialog');
 	}
 
 	var _cache = [],
-	_successCallback = null,
-	_useCache = false,
-	_isSilentAjax = false,
-	_cleanUpCache = false,
-	
-	_ajaxParams = {
-		url : '',
-		type : 'POST',
-		data : {},
-		dataType : 'json',
-		beforeSend : function () {
-			App.Settings.ajaxResponders.startLoading();
-		},
-		error : function (jqXHR, textStatus, errorThrown) {
-			App.Settings.ajaxResponders.errorOccured(jqXHR, textStatus, errorThrown, this.url);
-			_cache[_ajaxParams.url] = false;
-			return false;
-		},
-		success : function (response) {
-			App.Settings.ajaxResponders.success();
-			if (_cache[_ajaxParams.url] !== false) {
+		_successCallback = null,
+		_useCache = false,
+		_isSilentAjax = false,
+		_cleanUpCache = false,
+		_ajaxParams = {
+			url : '',
+			type : 'POST',
+			data : {},
+			dataType : 'json',
+			beforeSend : function () {
+				App.Debug('Storage: Prepare to start AJAX request.');
+				App.Settings.ajaxResponders.startLoading();
+				if(_useCache && _cache[_ajaxParams.url]) {
+					App.Debug('Storage: Data has been gotten from cache.');
+					return _cache[_ajaxParams.url];
+				}
+			},
+			error : function (jqXHR, textStatus, errorThrown) {
+				App.Debug('Storage: AJAX request finished with error.');
+				App.Settings.ajaxResponders.errorOccured(jqXHR, textStatus, errorThrown, this.url);
+				_cache[_ajaxParams.url] = false;
+				return false;
+			},
+			success : function (response) {
+				App.Debug('Storage: AJAX request finished successfully.');
+				App.Settings.ajaxResponders.success();
 				if (App.Settings.ajaxResponders.errorRequestProcessor(response, this.dataType)) {
-					_cache[_ajaxParams.url] = response;
-					if (typeof _successCallback == 'function') {
+					if (_useCache) {
+						if (typeof _cache[_ajaxParams.url] !== 'undefined') {
+							_cache[_ajaxParams.url] = response;
+						}
+						if (typeof _successCallback === 'function') {
+							_successCallback(_cache[_ajaxParams.url]);
+							return true;
+						}
+					} else {
 						_successCallback(response);
+						return true;
 					}
+				} else {
+					return false;
 				}
 			}
-		}
-	},
+		},
 
 	_handleLocalStorage = function (e) {
 		if (!e) {
 			e = window.event;
 		}
 		console.log('LocalStorage event: key: ' + e.key + ' old value: ' + e.oldValue + ', new value: ' + e.newValue + ', url: ' + e.url + ', ');
-	},
-
-	_produceAjaxRequest = function (callback) {
-		if (typeof callback == 'function') {
-			_successCallback = callback;
-		}
-		if (_useCache) {
-			if (_cache[_ajaxParams.url] !== undefined) {
-				if (typeof _successCallback == 'function') {
-					_successCallback(_cache[_ajaxParams.url]);
-					return true;
-				}
-			}
-		}
-		return $.ajax(_ajaxParams);
 	},
 
 	/*
@@ -96,9 +94,9 @@ App.Storage = (function ($) {
 			return this;
 		},
 		/**
-		 * arguments[0] = url,
-		 * arguments[1] = callback/silent
-		 * arguments[2] = callback
+		 * string 			arguments[0] url,
+		 * boolean/function arguments[1] callback/silent
+		 * агтсешщт 		arguments[2] callback
 		 */
 		Post : function () {
 			_ajaxParams.url = arguments[0];
@@ -106,14 +104,14 @@ App.Storage = (function ($) {
 			// Only callback
 			if (arguments.length == 2) {
 				_isSilentAjax = false;
-				_produceAjaxRequest(arguments[1]);
+				_successCallback = arguments[1];
 			}
 			// Callback and silent mode switcher
 			if (arguments.length == 3) {
 				_isSilentAjax = arguments[1];
-				_produceAjaxRequest(arguments[2]);
+				_successCallback = arguments[2];
 			}
-			return this;
+			return $.ajax(_ajaxParams);
 		},
 		Get : function () {
 			_ajaxParams.url = arguments[0];
@@ -121,14 +119,14 @@ App.Storage = (function ($) {
 			// Only callback
 			if (arguments.length == 2) {
 				_isSilentAjax = false;
-				_produceAjaxRequest(arguments[1]);
+				_successCallback = arguments[1];
 			}
 			// Callback and silent mode switcher
 			if (arguments.length == 3) {
 				_isSilentAjax = arguments[1];
-				_produceAjaxRequest(arguments[2]);
+				_successCallback = arguments[2];
 			}
-			return this;
+			return $.ajax(_ajaxParams);
 		},
 		GetCache : function () {
 			return _cache;
@@ -221,16 +219,54 @@ App.Storage = (function ($) {
 				throw 'Browser do not support `sessionStorage`';
 			}
 		}
-	}
+	},
+
+	/**
+	 * WebSocket wrapper
+	 */
+	webSocketProcessor = {
+		ws : [],
+		init : function (alias, address, onMessage) {
+			if ("WebSocket" in window) {
+				if( typeof ws[alias] === 'undefined' ) {
+					this.ws[alias] = new WebSocket('ws:' + address);
+					
+					this.ws[alias].onmessage = onMessage;
+					
+					this.ws[alias].onclose = function() {
+						if(App.Settings.Debug.enabled) {
+							console.info('WebSocket is closed.');
+						}
+						delete ws[alias];
+				    };
+				} else {
+					if(App.Settings.Debug.enabled) {
+						console.error('WebSocket with alias `' + alias + '` and address `' + address + '` is already opened.');
+					}
+				}
+			}
+		},
+		send : function (alias, msg) {
+			this.ws[alias].send(msg);
+		}
+	};
 
 	/*
 	 * Storage public interface
 	 * ---------------------------------
 	 */
-	return {
+	App.Storage = {
 		Ajax : ajaxProcessor,
 		Local : localProcessor,
-		Session : sessionStorageProcessor
-	}
+		Session : sessionStorageProcessor,
+		WS : webSocketProcessor
+	};
 
-})(jQuery);
+	/*Object.prototype.SaveMe = function(url, key) {
+		var self = this;
+		App.Debug({key: self});
+		App.Storage.Ajax.Data({key: self}).Post(url, function(response){
+			App.EM.trig('Storage' + key + 'Saved', response);
+		});
+	};*/
+})(App, jQuery);

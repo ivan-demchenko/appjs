@@ -1,15 +1,14 @@
-App.UI.Collection = {};
-App.Inspector = (function ($) {
-	
+(function(App, $, undefined){
+	App.UI.Collection = {};
+
 	$(document).ready(function () {
 		_inspectScope();
 	});
-	
 	/*
 	 * DOM Responders
 	 * ----------------------------------------------------------
 	 */
-	
+
 	/**
 	 * Use this when you have inserted new element and want to inspect only it:
 	 * Pass ID of element in array.
@@ -18,8 +17,8 @@ App.Inspector = (function ($) {
 	 *
 	 * App.EM.trig('UI:new', '#my-dialog');
 	 */
-	App.EM.bind("UI:new", _inspectElement);
-	
+	App.EM.bind("UI:NewHtmlElement", _inspectElement);
+
 	/**
 	 * Use this when you just injected a piece of HTML with different UI element
 	 * and wanna inspect main element and all everyone inside of it.
@@ -31,12 +30,12 @@ App.Inspector = (function ($) {
 	 *
 	 * App.EM.trig('UI:injected', {type: 'dialog', scope: '#id'});
 	 */
-	App.EM.bind("UI:injected", function (data) {
+	App.EM.bind("UI:HtmlInjected", function (data) {
 		var scope = '#'+data.element['0'].id + ' ';
 		_inspectElement(data.element['0']);
 		_inspectScope(scope);
 	});
-	
+
 	/*
 	 * Scope Inspector
 	 * ----------------------------------------------------------
@@ -44,16 +43,16 @@ App.Inspector = (function ($) {
 	function _inspectScope(scope) {
 		if (!scope)
 			scope = 'body ';
-		
+
 		$.each(App.UI.Settings.KnownElements, function (idx, elemClass) {
 			$(scope + '.' + elemClass).each(function (i) {
 				_inspectElement($(this));
 			});
 		});
-		
+
 		return this;
 	}
-	
+
 	function _inspectElement(element, params) {
 		var elementType = '';
 		// Determine which element we got
@@ -62,17 +61,15 @@ App.Inspector = (function ($) {
 				elementType = elemClass;
 			}
 		});
-		
 		if (!App.UI.Collection.hasOwnProperty(elementType)) {
 			App.UI.Collection[elementType] = [];
 		}
-		if (App.UI.Collection[elementType][$(element).attr('id')] == undefined) {
+		if (typeof App.UI.Collection[elementType][$(element).attr('id')] === 'undefined') {
 			App.UI.Collection[elementType][$(element).attr('id')] = App.UI.Builder.buildElement(elementType, $(element), params);
 		}
 	}
-	
-	return {
+
+	App.Inspector = {
 		reinspect : _inspectScope
 	}
-	
-})(jQuery);
+})(App, jQuery);

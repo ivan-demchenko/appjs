@@ -1,7 +1,5 @@
-App = App || {UI:{}};
-
-App.UI.Builder = (function($, undefined){
-	return {
+(function(App, $, undefined){
+	App.UI.Builder = {
 		buildElement : function(elementType, elementInst, params) {
 			if(elementType) {
 				if(App.UI.Library.elementType === undefined) {
@@ -26,4 +24,4 @@ App.UI.Builder = (function($, undefined){
 			}
 		}
 	}
-})(jQuery);
+})(App, jQuery);

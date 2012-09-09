@@ -1,11 +1,12 @@
 var App = (function ($) {
 	'use strict';
-	
+
 	var
-	appParts = ['Settings', 'UISettings', 'EventManager', 'UILibrary', 'UIBuilder', 'Inspector', 'Storage'],
+	autoloadScheme = ['Helper', 'KeyboardEventHandler', 'Tips'],
+	appParts = ['Settings', 'ModuleRouting', 'UISettings', 'EventManager', 'UILibrary', 'UIBuilder', 'Inspector', 'Storage'],
 	appIsBuilt = false,
-	appPartsLocation = '/js/App/',
-	
+	appPartsLocation = '/js/App/';
+
 	/**
 	 * Module loader
 	 * 
@@ -18,21 +19,21 @@ var App = (function ($) {
 	 * 
 	 * @return function
 	 */
-	LoaderFactory = function (collection) {
+	function LoaderFactory(collection) {
 		return function (path) { // = SubFolder/module
 			var slices = path.split('/'),
-			name = slices[slices.length - 1]; // = module
+				name = slices[slices.length - 1], // = module
+				protocol = window.location.protocol,
+				domain = window.location.host;
 			
-			if (collection[name]) {
-				return collection[name];
-			}
-			
+			if (collection[name]) return collection[name];
+
 			var d = $.Deferred(),
-			modulePath = App.Settings.modulesLocation + path + '/' + name + '.js',
-			moduleParams = App.Settings.modulesLocation + path + '/params.json';
-			
-			$.when($.getScript(modulePath), $.getJSON(moduleParams)).done(function (module, params) {
-				App.Modules.Get(name).init.apply(App.Modules.Get(name), [params[0]]);
+				modulePath = protocol + '//' + domain + App.Settings.modulesLocation + path + '/' + name + '.js';
+			$.when($.getScript(modulePath)).done(function (module, params) {
+				if(App.Modules.Get(name).hasOwnProperty('init')) {
+					App.Modules.Get(name).init.apply(App.Modules.Get(name), [params[0]]);
+				}
 				d.resolve();
 			}).fail(function () {
 				if (App.Settings.Debug.enabled) {
@@ -42,8 +43,8 @@ var App = (function ($) {
 			});
 			return d.promise();
 		};
-	},
-	
+	};
+
 	/**
 	 * Module Manager
 	 * 
@@ -51,59 +52,79 @@ var App = (function ($) {
 	 * 
 	 * @return object
 	 */
-	ModuleManager = function () {
+	function ModuleManager() {
 		var runningModules = [],
 		factory = LoaderFactory(runningModules);
-		
+
 		return {
 			Get : factory,
-			
+
 			Register : function (moduleName, obj) {
-				if (App.Settings.Debug.enabled) {
-					console.info('Registered module `' + moduleName + '`');
-				}
+				App.Debug('Registered module `' + moduleName + '`');
 				runningModules[moduleName] = obj;
 			},
-			
+
 			RunningModules : function () {
 				return runningModules;
 			},
-			
+
 			LoadModulesByScheme : function () {
-				var list = App.Settings.GetModulesScheme(),
+				var list = App.Settings.ModulesRouteScheme,
 				loc = window.location.pathname;
-				
 				for (var i = 0; i < list[loc].length; i++) {
 					factory(list[loc][i]);
 				}
 			}
 		}
-	},
-	
-	prepareApp = function (i) {
+	};
+
+	function AutoloadModules() {
+		var list = autoloadScheme;
+		for (var i = 0; i < list.length; i++)
+			$.getScript('/js/App/Autoload/' + list[i] + '.js');
+	};
+
+	function prepareApp(i) {
 		$.getScript(appPartsLocation + appParts[i] + '.js')
-		.done(function () {
+		 .done(function () {
 			if (i < appParts.length - 1) {
 				prepareApp(++i);
 			} else {
-				App.Modules.LoadModulesByScheme();
 				appIsBuilt = true;
+				App.Modules.LoadModulesByScheme();
 			}
 		})
 		.fail(function () {
-			console.error('Error: ' + appPartsLocation + appParts[i] + '.js');
+			App.Debug('Error: ' + appPartsLocation + appParts[i] + '.js', 'error');
 		});
 	};
+	
+	function AppBuilder() {
+		AutoloadModules();
+		var i = 0;
+		if (appIsBuilt === false) {
+			prepareApp(i);
+		} else {
+			return false;
+		}
+	}
 
 	return {
-		Build : function (i) {
-			if (appIsBuilt === false) {
-				prepareApp(i);
-			} else {
-				return false;
+		Debug : function() {
+			if(arguments.length == 1) {
+				if (App.Settings.Debug.enabled) {
+					console.info(arguments[0]);
+				}
+			}
+			if(arguments.length == 2) {
+				if (App.Settings.Debug.enabled) {
+					console[arguments[1]](arguments[0]);
+				}
 			}
 		},
+		Build : AppBuilder,
 		UI : {},
+		Utils : {},
 		Modules : new ModuleManager()
 	};
 })(jQuery);
@@ -111,79 +132,4 @@ var App = (function ($) {
 /**
  * Build App with Internal Modules
  */
-var i = 0;
-App.Build(i);
-
-/**
- * Very usefull function to create templates
- * Borrowed from Douglas Crockford.
- * 
- * Ussage is very simple. Imagine, you have an object
- * 
- * var data = {
- *	  title: 'C pocket reference',
- *	  type: 'PDF Document',
- *	  tag: 'programming',
- *	}
- * 
- * and you wanna make a template from this. Then you just write such code:
- * var html = "<tr> <td>{title}</td> <td>{type}</td> <td><a href="/tag/{tag}">{tag}</a></td> </tr>".supplant(data);
- */
-String.prototype.supplant = function(o) {
-    return this.replace(/{([^{}]*)}/g,
-        function(a, b) {
-            var r = o[b];
-            return typeof r === 'string' || typeof r === 'number' ? r : a;
-        }
-    );
-};
-
-/**
- * Help functions
- */
-function noop(){};
-
-if (!window.console) {
-	window.console = (function (console) {
-		for (var i = 0, a = ['log', 'debug', 'info', 'warn', 'error', 'assert', 'dir', 'time', 'timeEnd', 'count', 'trace', 'profile', 'profileEnd'], l = a.length, noop = function () {}; i < l; i += 1)
-			console[a[i]] = noop;
-		return console;
-	})({});
-}
-
-var debugLog = function (msg, url, line) {
-	console.warn(msg + '; url: ' + (url || '') + (line === undefined ? '' : ' on line: ' + line));
-	if (App.Settings.Debug.enabled && App.Settings.Debug.sendReports) {
-		var errorData = {
-			msg : msg,
-			url : url,
-			line : line,
-			location : document.location.href
-		}
-		$.post(App.Settings.errorReportingUrl, errorData);
-	}
-};
-
-window.onerror = function (msg, url, line) {
-	debugLog(msg, url, line);
-	return true;
-};
-
-function stringify(obj) {
-    var t = typeof (obj);
-    if (t != "object" || obj === null) {
-        if (t == "string") obj = '"' + obj + '"';
-        return String(obj);
-    } else {
-        var n, v, json = [], arr = (obj && obj.constructor == Array);
-        for (n in obj) {
-            v = obj[n];
-            t = typeof(v);
-            if (obj.hasOwnProperty(n)) {
-                if (t == "string") v = '"' + v + '"'; else if (t == "object" && v !== null) v = v;
-                json.push((arr ? "" : '"' + n + '":') + String(v));
-            }
-        }
-        return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
-    }
-};
+App.Build();
