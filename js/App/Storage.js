@@ -94,40 +94,28 @@
 			return this;
 		},
 		/**
-		 * string 			arguments[0] url,
-		 * boolean/function arguments[1] callback/silent
-		 * агтсешщт 		arguments[2] callback
-		 */
-		Post : function () {
-			_ajaxParams.url = arguments[0];
-			_ajaxParams.type = 'POST';
-			// Only callback
-			if (arguments.length == 2) {
-				_isSilentAjax = false;
-				_successCallback = arguments[1];
-			}
-			// Callback and silent mode switcher
-			if (arguments.length == 3) {
-				_isSilentAjax = arguments[1];
-				_successCallback = arguments[2];
-			}
-			return $.ajax(_ajaxParams);
+         * string           arguments[0] url,
+         * boolean/function arguments[1] callback/silent
+         * агтсешщт         arguments[2] callback
+         */
+		requestProducer : function (method, args) {
+		    return function (args) {
+    		    _ajaxParams.url = args[0];
+                switch (args.length) {
+                    case 2 :
+                        _isSilentAjax = false;
+                        _successCallback = args[1];
+                        break;
+                    case 3 :
+                        _isSilentAjax = args[1];
+                        _successCallback = args[2];
+                        break;
+                }
+                return $.ajax(_ajaxParams);
+            };
 		},
-		Get : function () {
-			_ajaxParams.url = arguments[0];
-			_ajaxParams.type = 'GET';
-			// Only callback
-			if (arguments.length == 2) {
-				_isSilentAjax = false;
-				_successCallback = arguments[1];
-			}
-			// Callback and silent mode switcher
-			if (arguments.length == 3) {
-				_isSilentAjax = arguments[1];
-				_successCallback = arguments[2];
-			}
-			return $.ajax(_ajaxParams);
-		},
+		Post : this.requestProducer('POST', arguments),
+		Get : this.requestProducer('GET', arguments),
 		GetCache : function () {
 			return _cache;
 		},

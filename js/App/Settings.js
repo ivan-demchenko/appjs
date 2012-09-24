@@ -33,7 +33,7 @@
 						case 'jsonp':
 						case 'json': {
 							var errKey = App.Settings.Debug.ajaxErrorKey,
-							errMsg = App.Settings.Debug.ajaxErrorMessageKey;
+							    errMsg = App.Settings.Debug.ajaxErrorMessageKey;
 							if (response.hasOwnProperty(errKey) && response[errKey]) {
 								App.Collection.Dialogs['error-dialog'].SetContent(response[errMsg]).Modal().Show();
 								return false;
