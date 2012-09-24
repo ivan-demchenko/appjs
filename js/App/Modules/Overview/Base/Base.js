@@ -18,31 +18,6 @@
 			$("#header-placeholder").remove();
 		}
 	});
-
-	// Sorting Dates
-	$.fn.dataTableExt.oSort['us_date-asc'] = function (a, b) {
-        var x = new Date(a), y = new Date(b);
-        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-    };
-
-    $.fn.dataTableExt.oSort['us_date-desc'] = function (a, b) {
-        var x = new Date(a), y = new Date(b);
-        return ((x < y) ? 1 : ((x > y) ? -1 : 0));
-    };
-
-    // Sorting numbers O_o
-    $.fn.dataTableExt.oSort['numbers-asc'] = function (a, b) {
-        var x = parseFloat(a.replace(/(<([^>]+)>)/ig, '').replace(/[^-.\d]+/g, '')),
-        	y = parseFloat(b.replace(/(<([^>]+)>)/ig, '').replace(/[^-.\d]+/g, ''));
-        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-    };
-
-    $.fn.dataTableExt.oSort['numbers-desc'] = function (a, b) {
-        var x = parseFloat(a.replace(/(<([^>]+)>)/ig, '').replace(/[^-.\d]+/g, '')),
-        	y = parseFloat(b.replace(/(<([^>]+)>)/ig, '').replace(/[^-.\d]+/g, ''));
-        return ((x < y) ? 1 : ((x > y) ? -1 : 0));
-    };
-
 	// Module registration
 	// Public interface
 	// ----------------------------------------------

@@ -96,26 +96,25 @@
 		/**
          * string           arguments[0] url,
          * boolean/function arguments[1] callback/silent
-         * агтсешщт         arguments[2] callback
+         * function         arguments[2] callback
          */
 		requestProducer : function (method, args) {
-		    return function (args) {
-    		    _ajaxParams.url = args[0];
-                switch (args.length) {
-                    case 2 :
-                        _isSilentAjax = false;
-                        _successCallback = args[1];
-                        break;
-                    case 3 :
-                        _isSilentAjax = args[1];
-                        _successCallback = args[2];
-                        break;
-                }
-                return $.ajax(_ajaxParams);
-            };
+		    _ajaxParams.type = method;
+    		_ajaxParams.url = args[0];
+            switch (args.length) {
+                case 2 :
+                    _isSilentAjax = false;
+                    _successCallback = args[1];
+                    break;
+                case 3 :
+                    _isSilentAjax = args[1];
+                    _successCallback = args[2];
+                    break;
+            }
+            return $.ajax(_ajaxParams);
 		},
-		Post : this.requestProducer('POST', arguments),
-		Get : this.requestProducer('GET', arguments),
+		Post : function POSTRequest () { this.requestProducer('POST', arguments) },
+		Get : function GETRequest () { this.requestProducer('GET', arguments) },
 		GetCache : function () {
 			return _cache;
 		},
@@ -218,13 +217,9 @@
 			if ("WebSocket" in window) {
 				if( typeof ws[alias] === 'undefined' ) {
 					this.ws[alias] = new WebSocket('ws:' + address);
-					
 					this.ws[alias].onmessage = onMessage;
-					
 					this.ws[alias].onclose = function() {
-						if(App.Settings.Debug.enabled) {
-							console.info('WebSocket is closed.');
-						}
+						App.Debug('WebSocket is closed.');
 						delete ws[alias];
 				    };
 				} else {
